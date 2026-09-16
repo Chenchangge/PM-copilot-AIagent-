@@ -1,0 +1,21 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    @apply bg-gray-50 text-gray-900 antialiased;
+  }
+}
+
+@layer components {
+  /* 统一的轻量卡片表面：圆角 + 细边框 + 白底，避免重阴影 */
+  .card {
+    @apply rounded-2xl border border-gray-100 bg-white;
+  }
+}

@@ -1,0 +1,14 @@
+# 占位编排：当前阶段后端可容器化运行，前端建议本地 npm run dev。
+# 完整的生产化编排（含前端构建镜像、向量库服务）待后续补充。
+services:
+  backend:
+    build: ./backend
+    container_name: pm-copilot-backend
+    ports:
+      - "8000:8000"
+    environment:
+      DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY:-}
+      DATABASE_URL: sqlite:///./pm_copilot.db
+    volumes:
+      - ./backend/app:/app/app
+      - ./knowledge:/app/knowledge

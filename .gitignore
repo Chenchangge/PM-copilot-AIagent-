@@ -1,0 +1,30 @@
+# ===== Node / Frontend =====
+node_modules/
+frontend/dist/
+frontend/.vite/
+*.log
+
+# ===== Python / Backend =====
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+backend/.venv/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+
+# ===== Env & Secrets =====
+.env
+.env.*
+!.env.example
+
+# ===== Database =====
+*.db
+*.sqlite3
+
+# ===== IDE / OS =====
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
