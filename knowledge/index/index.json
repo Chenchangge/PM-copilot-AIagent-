@@ -1,0 +1,56 @@
+{
+  "version": "0.1",
+  "total": 45,
+  "items": [
+    { "id": "pm-responsibilities", "title": "产品经理职责", "category": "product", "difficulty": "beginner", "path": "data/product/pm-responsibilities.md" },
+    { "id": "user-requirements", "title": "用户需求", "category": "product", "difficulty": "beginner", "path": "data/product/user-requirements.md" },
+    { "id": "user-persona", "title": "用户画像", "category": "product", "difficulty": "beginner", "path": "data/product/user-persona.md" },
+    { "id": "user-value", "title": "用户价值", "category": "product", "difficulty": "beginner", "path": "data/product/user-value.md" },
+    { "id": "mvp", "title": "MVP", "category": "product", "difficulty": "beginner", "path": "data/product/mvp.md" },
+    { "id": "product-lifecycle", "title": "产品生命周期", "category": "product", "difficulty": "intermediate", "path": "data/product/product-lifecycle.md" },
+    { "id": "business-model", "title": "商业模式", "category": "product", "difficulty": "intermediate", "path": "data/product/business-model.md" },
+    { "id": "user-story", "title": "用户故事", "category": "product", "difficulty": "beginner", "path": "data/product/user-story.md" },
+    { "id": "product-goals", "title": "产品目标", "category": "product", "difficulty": "beginner", "path": "data/product/product-goals.md" },
+    { "id": "product-metrics-basics", "title": "产品指标基础", "category": "product", "difficulty": "beginner", "path": "data/product/product-metrics-basics.md" },
+
+    { "id": "user-journey", "title": "用户旅程", "category": "design", "difficulty": "intermediate", "path": "data/design/user-journey.md" },
+    { "id": "user-flow", "title": "用户流程", "category": "design", "difficulty": "beginner", "path": "data/design/user-flow.md" },
+    { "id": "information-architecture", "title": "信息架构", "category": "design", "difficulty": "intermediate", "path": "data/design/information-architecture.md" },
+    { "id": "feature-breakdown", "title": "功能拆解", "category": "design", "difficulty": "beginner", "path": "data/design/feature-breakdown.md" },
+    { "id": "prd", "title": "PRD", "category": "design", "difficulty": "beginner", "path": "data/design/prd.md" },
+    { "id": "product-solution", "title": "产品方案设计", "category": "design", "difficulty": "intermediate", "path": "data/design/product-solution.md" },
+    { "id": "interaction-design", "title": "交互设计", "category": "design", "difficulty": "intermediate", "path": "data/design/interaction-design.md" },
+    { "id": "edge-case-design", "title": "异常流程设计", "category": "design", "difficulty": "intermediate", "path": "data/design/edge-case-design.md" },
+
+    { "id": "dau-mau", "title": "DAU/MAU", "category": "data", "difficulty": "beginner", "path": "data/data/dau-mau.md" },
+    { "id": "retention-rate", "title": "留存率", "category": "data", "difficulty": "intermediate", "path": "data/data/retention-rate.md" },
+    { "id": "conversion-rate", "title": "转化率", "category": "data", "difficulty": "beginner", "path": "data/data/conversion-rate.md" },
+    { "id": "funnel-analysis", "title": "漏斗分析", "category": "data", "difficulty": "intermediate", "path": "data/data/funnel-analysis.md" },
+    { "id": "ab-testing", "title": "A/B Test", "category": "data", "difficulty": "intermediate", "path": "data/data/ab-testing.md" },
+    { "id": "north-star-metric", "title": "北极星指标", "category": "data", "difficulty": "intermediate", "path": "data/data/north-star-metric.md" },
+    { "id": "metrics-system", "title": "指标体系", "category": "data", "difficulty": "intermediate", "path": "data/data/metrics-system.md" },
+    { "id": "data-anomaly-analysis", "title": "数据异常分析", "category": "data", "difficulty": "intermediate", "path": "data/data/data-anomaly-analysis.md" },
+
+    { "id": "llm", "title": "大语言模型（LLM）", "category": "ai", "difficulty": "beginner", "path": "data/ai/llm.md" },
+    { "id": "prompt-engineering", "title": "Prompt 工程", "category": "ai", "difficulty": "beginner", "path": "data/ai/prompt-engineering.md" },
+    { "id": "token", "title": "Token", "category": "ai", "difficulty": "beginner", "path": "data/ai/token.md" },
+    { "id": "embedding", "title": "Embedding", "category": "ai", "difficulty": "intermediate", "path": "data/ai/embedding.md" },
+    { "id": "rag", "title": "RAG", "category": "ai", "difficulty": "intermediate", "path": "data/ai/rag.md" },
+    { "id": "vector-database", "title": "向量数据库", "category": "ai", "difficulty": "intermediate", "path": "data/ai/vector-database.md" },
+    { "id": "ai-agent", "title": "AI Agent", "category": "ai", "difficulty": "intermediate", "path": "data/ai/ai-agent.md" },
+    { "id": "tool-calling", "title": "Tool Calling", "category": "ai", "difficulty": "intermediate", "path": "data/ai/tool-calling.md" },
+    { "id": "ai-evaluation", "title": "AI 评测", "category": "ai", "difficulty": "intermediate", "path": "data/ai/ai-evaluation.md" },
+    { "id": "ai-hallucination", "title": "AI 幻觉", "category": "ai", "difficulty": "beginner", "path": "data/ai/ai-hallucination.md" },
+
+    { "id": "jira", "title": "Jira", "category": "tools", "difficulty": "beginner", "path": "data/tools/jira.md" },
+    { "id": "notion", "title": "Notion", "category": "tools", "difficulty": "beginner", "path": "data/tools/notion.md" },
+    { "id": "figma", "title": "Figma", "category": "tools", "difficulty": "beginner", "path": "data/tools/figma.md" },
+    { "id": "sql", "title": "SQL", "category": "tools", "difficulty": "beginner", "path": "data/tools/sql.md" },
+
+    { "id": "self-introduction", "title": "产品经理自我介绍", "category": "interview", "difficulty": "beginner", "path": "data/interview/self-introduction.md" },
+    { "id": "product-analysis", "title": "产品分析题", "category": "interview", "difficulty": "intermediate", "path": "data/interview/product-analysis.md" },
+    { "id": "product-design-question", "title": "产品设计题", "category": "interview", "difficulty": "intermediate", "path": "data/interview/product-design-question.md" },
+    { "id": "requirement-analysis-question", "title": "需求分析题", "category": "interview", "difficulty": "intermediate", "path": "data/interview/requirement-analysis-question.md" },
+    { "id": "ai-product-interview", "title": "AI 产品面试题", "category": "interview", "difficulty": "intermediate", "path": "data/interview/ai-product-interview.md" }
+  ]
+}
