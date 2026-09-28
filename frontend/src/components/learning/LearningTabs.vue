@@ -3,7 +3,7 @@ import { useRoute } from 'vue-router'
 
 const tabs = [
   { label: '知识库', to: '/learning/knowledge' },
-  { label: 'AI 问答', to: '/learning/qa' },
+  { label: '知识问答', to: '/learning/qa' },
   { label: '学习计划', to: '/learning/plan' },
 ]
 

@@ -23,6 +23,9 @@ backend/.venv/
 *.db
 *.sqlite3
 
+# ===== RAG / Vector DB =====
+backend/data/chroma/
+
 # ===== IDE / OS =====
 .idea/
 .vscode/

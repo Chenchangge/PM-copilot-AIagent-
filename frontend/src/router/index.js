@@ -24,13 +24,19 @@ const routes = [
     path: '/learning/qa',
     name: 'qa',
     component: () => import('@/views/learning/QaView.vue'),
-    meta: { title: 'AI 问答' },
+    meta: { title: '知识问答' },
   },
   {
     path: '/learning/plan',
     name: 'plan',
     component: () => import('@/views/learning/PlanView.vue'),
     meta: { title: '学习计划' },
+  },
+  {
+    path: '/learning/plan/:id',
+    name: 'plan-detail',
+    component: () => import('@/views/learning/PlanDetailView.vue'),
+    meta: { title: '学习计划详情', tab: false },
   },
   {
     path: '/interview/setup',
@@ -45,10 +51,10 @@ const routes = [
     meta: { title: '面试进行中', tab: false },
   },
   {
-    path: '/interview/report/:id',
-    name: 'interview-report',
-    component: () => import('@/views/interview/ReportView.vue'),
-    meta: { title: '面试报告', tab: false },
+    path: '/interview/:sessionId/evaluation',
+    name: 'interview-evaluation',
+    component: () => import('@/views/interview/EvaluationView.vue'),
+    meta: { title: '面试评价', tab: false },
   },
   {
     path: '/profile',
@@ -73,6 +79,12 @@ const routes = [
     name: 'settings',
     component: () => import('@/views/profile/SettingsView.vue'),
     meta: { title: '设置' },
+  },
+  {
+    path: '/profile/ai-models',
+    name: 'ai-models',
+    component: () => import('@/views/profile/AiModelsView.vue'),
+    meta: { title: 'AI 模型 / API' },
   },
 ]
 

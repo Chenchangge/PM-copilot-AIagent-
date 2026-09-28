@@ -1,56 +1,1588 @@
 {
-  "version": "0.1",
-  "total": 45,
+  "version": "1.0",
+  "total": 226,
   "items": [
-    { "id": "pm-responsibilities", "title": "产品经理职责", "category": "product", "difficulty": "beginner", "path": "data/product/pm-responsibilities.md" },
-    { "id": "user-requirements", "title": "用户需求", "category": "product", "difficulty": "beginner", "path": "data/product/user-requirements.md" },
-    { "id": "user-persona", "title": "用户画像", "category": "product", "difficulty": "beginner", "path": "data/product/user-persona.md" },
-    { "id": "user-value", "title": "用户价值", "category": "product", "difficulty": "beginner", "path": "data/product/user-value.md" },
-    { "id": "mvp", "title": "MVP", "category": "product", "difficulty": "beginner", "path": "data/product/mvp.md" },
-    { "id": "product-lifecycle", "title": "产品生命周期", "category": "product", "difficulty": "intermediate", "path": "data/product/product-lifecycle.md" },
-    { "id": "business-model", "title": "商业模式", "category": "product", "difficulty": "intermediate", "path": "data/product/business-model.md" },
-    { "id": "user-story", "title": "用户故事", "category": "product", "difficulty": "beginner", "path": "data/product/user-story.md" },
-    { "id": "product-goals", "title": "产品目标", "category": "product", "difficulty": "beginner", "path": "data/product/product-goals.md" },
-    { "id": "product-metrics-basics", "title": "产品指标基础", "category": "product", "difficulty": "beginner", "path": "data/product/product-metrics-basics.md" },
-
-    { "id": "user-journey", "title": "用户旅程", "category": "design", "difficulty": "intermediate", "path": "data/design/user-journey.md" },
-    { "id": "user-flow", "title": "用户流程", "category": "design", "difficulty": "beginner", "path": "data/design/user-flow.md" },
-    { "id": "information-architecture", "title": "信息架构", "category": "design", "difficulty": "intermediate", "path": "data/design/information-architecture.md" },
-    { "id": "feature-breakdown", "title": "功能拆解", "category": "design", "difficulty": "beginner", "path": "data/design/feature-breakdown.md" },
-    { "id": "prd", "title": "PRD", "category": "design", "difficulty": "beginner", "path": "data/design/prd.md" },
-    { "id": "product-solution", "title": "产品方案设计", "category": "design", "difficulty": "intermediate", "path": "data/design/product-solution.md" },
-    { "id": "interaction-design", "title": "交互设计", "category": "design", "difficulty": "intermediate", "path": "data/design/interaction-design.md" },
-    { "id": "edge-case-design", "title": "异常流程设计", "category": "design", "difficulty": "intermediate", "path": "data/design/edge-case-design.md" },
-
-    { "id": "dau-mau", "title": "DAU/MAU", "category": "data", "difficulty": "beginner", "path": "data/data/dau-mau.md" },
-    { "id": "retention-rate", "title": "留存率", "category": "data", "difficulty": "intermediate", "path": "data/data/retention-rate.md" },
-    { "id": "conversion-rate", "title": "转化率", "category": "data", "difficulty": "beginner", "path": "data/data/conversion-rate.md" },
-    { "id": "funnel-analysis", "title": "漏斗分析", "category": "data", "difficulty": "intermediate", "path": "data/data/funnel-analysis.md" },
-    { "id": "ab-testing", "title": "A/B Test", "category": "data", "difficulty": "intermediate", "path": "data/data/ab-testing.md" },
-    { "id": "north-star-metric", "title": "北极星指标", "category": "data", "difficulty": "intermediate", "path": "data/data/north-star-metric.md" },
-    { "id": "metrics-system", "title": "指标体系", "category": "data", "difficulty": "intermediate", "path": "data/data/metrics-system.md" },
-    { "id": "data-anomaly-analysis", "title": "数据异常分析", "category": "data", "difficulty": "intermediate", "path": "data/data/data-anomaly-analysis.md" },
-
-    { "id": "llm", "title": "大语言模型（LLM）", "category": "ai", "difficulty": "beginner", "path": "data/ai/llm.md" },
-    { "id": "prompt-engineering", "title": "Prompt 工程", "category": "ai", "difficulty": "beginner", "path": "data/ai/prompt-engineering.md" },
-    { "id": "token", "title": "Token", "category": "ai", "difficulty": "beginner", "path": "data/ai/token.md" },
-    { "id": "embedding", "title": "Embedding", "category": "ai", "difficulty": "intermediate", "path": "data/ai/embedding.md" },
-    { "id": "rag", "title": "RAG", "category": "ai", "difficulty": "intermediate", "path": "data/ai/rag.md" },
-    { "id": "vector-database", "title": "向量数据库", "category": "ai", "difficulty": "intermediate", "path": "data/ai/vector-database.md" },
-    { "id": "ai-agent", "title": "AI Agent", "category": "ai", "difficulty": "intermediate", "path": "data/ai/ai-agent.md" },
-    { "id": "tool-calling", "title": "Tool Calling", "category": "ai", "difficulty": "intermediate", "path": "data/ai/tool-calling.md" },
-    { "id": "ai-evaluation", "title": "AI 评测", "category": "ai", "difficulty": "intermediate", "path": "data/ai/ai-evaluation.md" },
-    { "id": "ai-hallucination", "title": "AI 幻觉", "category": "ai", "difficulty": "beginner", "path": "data/ai/ai-hallucination.md" },
-
-    { "id": "jira", "title": "Jira", "category": "tools", "difficulty": "beginner", "path": "data/tools/jira.md" },
-    { "id": "notion", "title": "Notion", "category": "tools", "difficulty": "beginner", "path": "data/tools/notion.md" },
-    { "id": "figma", "title": "Figma", "category": "tools", "difficulty": "beginner", "path": "data/tools/figma.md" },
-    { "id": "sql", "title": "SQL", "category": "tools", "difficulty": "beginner", "path": "data/tools/sql.md" },
-
-    { "id": "self-introduction", "title": "产品经理自我介绍", "category": "interview", "difficulty": "beginner", "path": "data/interview/self-introduction.md" },
-    { "id": "product-analysis", "title": "产品分析题", "category": "interview", "difficulty": "intermediate", "path": "data/interview/product-analysis.md" },
-    { "id": "product-design-question", "title": "产品设计题", "category": "interview", "difficulty": "intermediate", "path": "data/interview/product-design-question.md" },
-    { "id": "requirement-analysis-question", "title": "需求分析题", "category": "interview", "difficulty": "intermediate", "path": "data/interview/requirement-analysis-question.md" },
-    { "id": "ai-product-interview", "title": "AI 产品面试题", "category": "interview", "difficulty": "intermediate", "path": "data/interview/ai-product-interview.md" }
+    {
+      "id": "ab-testing-basics",
+      "title": "A/B测试基础",
+      "category": "data-analysis",
+      "difficulty": "进阶",
+      "path": "data/data-analysis/ab-testing-basics.md"
+    },
+    {
+      "id": "acceptance-criteria",
+      "title": "验收标准设计",
+      "category": "project-collaboration",
+      "difficulty": "基础",
+      "path": "data/project-collaboration/acceptance-criteria.md"
+    },
+    {
+      "id": "activation",
+      "title": "用户激活",
+      "category": "user-growth",
+      "difficulty": "基础",
+      "path": "data/user-growth/activation.md"
+    },
+    {
+      "id": "active-user-metrics",
+      "title": "DAU、WAU、MAU与活跃用户",
+      "category": "data-analysis",
+      "difficulty": "入门",
+      "path": "data/data-analysis/active-user-metrics.md"
+    },
+    {
+      "id": "agent-basics",
+      "title": "AI Agent基本概念",
+      "category": "ai-product",
+      "difficulty": "基础",
+      "path": "data/ai-product/agent-basics.md"
+    },
+    {
+      "id": "agent-budget",
+      "title": "Agent成本与执行预算",
+      "category": "ai-product",
+      "difficulty": "进阶",
+      "path": "data/ai-product/agent-budget.md"
+    },
+    {
+      "id": "agent-error-handling",
+      "title": "Agent错误处理与重试",
+      "category": "ai-product",
+      "difficulty": "进阶",
+      "path": "data/ai-product/agent-error-handling.md"
+    },
+    {
+      "id": "agent-fallback",
+      "title": "Agent回退与降级策略",
+      "category": "ai-product",
+      "difficulty": "进阶",
+      "path": "data/ai-product/agent-fallback.md"
+    },
+    {
+      "id": "agent-human-confirmation",
+      "title": "Agent关键动作确认机制",
+      "category": "ai-product",
+      "difficulty": "进阶",
+      "path": "data/ai-product/agent-human-confirmation.md"
+    },
+    {
+      "id": "agent-idempotency",
+      "title": "Agent幂等与重复执行控制",
+      "category": "ai-product",
+      "difficulty": "高级",
+      "path": "data/ai-product/agent-idempotency.md"
+    },
+    {
+      "id": "agent-loop",
+      "title": "Agent执行循环",
+      "category": "ai-product",
+      "difficulty": "进阶",
+      "path": "data/ai-product/agent-loop.md"
+    },
+    {
+      "id": "agent-memory",
+      "title": "Agent记忆机制",
+      "category": "ai-product",
+      "difficulty": "进阶",
+      "path": "data/ai-product/agent-memory.md"
+    },
+    {
+      "id": "agent-observability",
+      "title": "Agent可观测性",
+      "category": "ai-product",
+      "difficulty": "进阶",
+      "path": "data/ai-product/agent-observability.md"
+    },
+    {
+      "id": "agent-planning",
+      "title": "Agent任务规划",
+      "category": "ai-product",
+      "difficulty": "进阶",
+      "path": "data/ai-product/agent-planning.md"
+    },
+    {
+      "id": "agent-product-boundary",
+      "title": "Agent产品边界设计",
+      "category": "ai-product",
+      "difficulty": "高级",
+      "path": "data/ai-product/agent-product-boundary.md"
+    },
+    {
+      "id": "agent-state-management",
+      "title": "Agent状态管理",
+      "category": "ai-product",
+      "difficulty": "进阶",
+      "path": "data/ai-product/agent-state-management.md"
+    },
+    {
+      "id": "ai-capability-types",
+      "title": "AI能力的基本类型",
+      "category": "ai-product",
+      "difficulty": "入门",
+      "path": "data/ai-product/ai-capability-types.md"
+    },
+    {
+      "id": "ai-confidence-and-uncertainty",
+      "title": "AI不确定性与置信表达",
+      "category": "ai-product",
+      "difficulty": "进阶",
+      "path": "data/ai-product/ai-confidence-and-uncertainty.md"
+    },
+    {
+      "id": "ai-cost",
+      "title": "AI产品成本模型",
+      "category": "ai-product",
+      "difficulty": "进阶",
+      "path": "data/ai-product/ai-cost.md"
+    },
+    {
+      "id": "ai-evaluation",
+      "title": "AI产品评测基础",
+      "category": "ai-product",
+      "difficulty": "基础",
+      "path": "data/ai-product/ai-evaluation.md"
+    },
+    {
+      "id": "ai-evaluation-dataset",
+      "title": "AI评测数据集设计",
+      "category": "ai-product",
+      "difficulty": "进阶",
+      "path": "data/ai-product/ai-evaluation-dataset.md"
+    },
+    {
+      "id": "ai-evaluation-metrics",
+      "title": "AI产品核心评测指标",
+      "category": "ai-product",
+      "difficulty": "进阶",
+      "path": "data/ai-product/ai-evaluation-metrics.md"
+    },
+    {
+      "id": "ai-evaluation-objective",
+      "title": "AI评测目标设计",
+      "category": "ai-product",
+      "difficulty": "进阶",
+      "path": "data/ai-product/ai-evaluation-objective.md"
+    },
+    {
+      "id": "ai-evaluation-stability",
+      "title": "AI输出稳定性评测",
+      "category": "ai-product",
+      "difficulty": "进阶",
+      "path": "data/ai-product/ai-evaluation-stability.md"
+    },
+    {
+      "id": "ai-evaluation-system",
+      "title": "AI评测体系建设",
+      "category": "ai-product",
+      "difficulty": "高级",
+      "path": "data/ai-product/ai-evaluation-system.md"
+    },
+    {
+      "id": "ai-feature-vs-ai-native-product",
+      "title": "AI功能、AI增强产品与AI原生产品",
+      "category": "ai-product",
+      "difficulty": "进阶",
+      "path": "data/ai-product/ai-feature-vs-ai-native-product.md"
+    },
+    {
+      "id": "ai-hallucination",
+      "title": "AI幻觉",
+      "category": "ai-product",
+      "difficulty": "基础",
+      "path": "data/ai-product/ai-hallucination.md"
+    },
+    {
+      "id": "ai-human-in-the-loop",
+      "title": "Human-in-the-loop",
+      "category": "ai-product",
+      "difficulty": "进阶",
+      "path": "data/ai-product/ai-human-in-the-loop.md"
+    },
+    {
+      "id": "ai-inference-basics",
+      "title": "AI推理基础",
+      "category": "ai-product",
+      "difficulty": "基础",
+      "path": "data/ai-product/ai-inference-basics.md"
+    },
+    {
+      "id": "ai-latency",
+      "title": "AI产品延迟设计",
+      "category": "ai-product",
+      "difficulty": "进阶",
+      "path": "data/ai-product/ai-latency.md"
+    },
+    {
+      "id": "ai-observability",
+      "title": "AI系统可观测性",
+      "category": "ai-product",
+      "difficulty": "进阶",
+      "path": "data/ai-product/ai-observability.md"
+    },
+    {
+      "id": "ai-output-validation",
+      "title": "AI输出校验",
+      "category": "ai-product",
+      "difficulty": "进阶",
+      "path": "data/ai-product/ai-output-validation.md"
+    },
+    {
+      "id": "ai-product-basics",
+      "title": "AI产品的基本特征",
+      "category": "ai-product",
+      "difficulty": "入门",
+      "path": "data/ai-product/ai-product-basics.md"
+    },
+    {
+      "id": "ai-product-value",
+      "title": "AI产品价值与AI化判断",
+      "category": "ai-product",
+      "difficulty": "进阶",
+      "path": "data/ai-product/ai-product-value.md"
+    },
+    {
+      "id": "ai-production-readiness",
+      "title": "AI产品上线前生产就绪检查",
+      "category": "ai-product",
+      "difficulty": "高级",
+      "path": "data/ai-product/ai-production-readiness.md"
+    },
+    {
+      "id": "ai-rate-limit-and-concurrency",
+      "title": "AI并发、限流与资源管理",
+      "category": "ai-product",
+      "difficulty": "进阶",
+      "path": "data/ai-product/ai-rate-limit-and-concurrency.md"
+    },
+    {
+      "id": "ai-safety",
+      "title": "AI安全与安全护栏",
+      "category": "ai-product",
+      "difficulty": "进阶",
+      "path": "data/ai-product/ai-safety.md"
+    },
+    {
+      "id": "ai-security",
+      "title": "AI产品安全基础",
+      "category": "ai-product",
+      "difficulty": "进阶",
+      "path": "data/ai-product/ai-security.md"
+    },
+    {
+      "id": "b2b-product-basics",
+      "title": "B端产品的基本特征",
+      "category": "b2b-enterprise",
+      "difficulty": "基础",
+      "path": "data/b2b-enterprise/b2b-product-basics.md"
+    },
+    {
+      "id": "b2b-product-value-measurement",
+      "title": "B端产品价值衡量",
+      "category": "b2b-enterprise",
+      "difficulty": "进阶",
+      "path": "data/b2b-enterprise/b2b-product-value-measurement.md"
+    },
+    {
+      "id": "behavior-data-and-user-research",
+      "title": "用户行为数据与用户研究结合",
+      "category": "user-research",
+      "difficulty": "进阶",
+      "path": "data/user-research/behavior-data-and-user-research.md"
+    },
+    {
+      "id": "behavioral-interview-method",
+      "title": "产品经理行为面试方法",
+      "category": "interview-job",
+      "difficulty": "基础",
+      "path": "data/interview-job/behavioral-interview-method.md"
+    },
+    {
+      "id": "business-model-canvas",
+      "title": "business-model-canvas",
+      "category": "commercialization",
+      "difficulty": "进阶",
+      "path": "data/commercialization/business-model-canvas.md"
+    },
+    {
+      "id": "business-process-modeling",
+      "title": "企业业务流程建模",
+      "category": "b2b-enterprise",
+      "difficulty": "基础",
+      "path": "data/b2b-enterprise/business-process-modeling.md"
+    },
+    {
+      "id": "cac",
+      "title": "CAC与获客成本",
+      "category": "user-growth",
+      "difficulty": "基础",
+      "path": "data/user-growth/cac.md"
+    },
+    {
+      "id": "change-management",
+      "title": "项目需求变更管理",
+      "category": "project-collaboration",
+      "difficulty": "进阶",
+      "path": "data/project-collaboration/change-management.md"
+    },
+    {
+      "id": "channel-analysis",
+      "title": "渠道分析",
+      "category": "user-growth",
+      "difficulty": "进阶",
+      "path": "data/user-growth/channel-analysis.md"
+    },
+    {
+      "id": "chunking-strategy",
+      "title": "RAG文本切分Chunking",
+      "category": "ai-product",
+      "difficulty": "进阶",
+      "path": "data/ai-product/chunking-strategy.md"
+    },
+    {
+      "id": "cohort-analysis",
+      "title": "同期群分析",
+      "category": "data-analysis",
+      "difficulty": "进阶",
+      "path": "data/data-analysis/cohort-analysis.md"
+    },
+    {
+      "id": "cold-start-strategy",
+      "title": "冷启动策略",
+      "category": "strategy-product",
+      "difficulty": "进阶",
+      "path": "data/strategy-product/cold-start-strategy.md"
+    },
+    {
+      "id": "competitor-analysis-framework",
+      "title": "竞品分析框架",
+      "category": "product-foundation",
+      "difficulty": "基础",
+      "path": "data/product-foundation/competitor-analysis-framework.md"
+    },
+    {
+      "id": "complex-feature-design",
+      "title": "复杂功能设计方法",
+      "category": "product-design",
+      "difficulty": "高级",
+      "path": "data/product-design/complex-feature-design.md"
+    },
+    {
+      "id": "conflict-resolution",
+      "title": "产品团队冲突处理",
+      "category": "project-collaboration",
+      "difficulty": "进阶",
+      "path": "data/project-collaboration/conflict-resolution.md"
+    },
+    {
+      "id": "context-construction-for-rag",
+      "title": "RAG上下文构造",
+      "category": "ai-product",
+      "difficulty": "进阶",
+      "path": "data/ai-product/context-construction-for-rag.md"
+    },
+    {
+      "id": "conversion-problem-diagnosis",
+      "title": "转化下降问题分析",
+      "category": "data-analysis",
+      "difficulty": "进阶",
+      "path": "data/data-analysis/conversion-problem-diagnosis.md"
+    },
+    {
+      "id": "conversion-rate",
+      "title": "转化率",
+      "category": "data-analysis",
+      "difficulty": "基础",
+      "path": "data/data-analysis/conversion-rate.md"
+    },
+    {
+      "id": "cross-functional-collaboration",
+      "title": "跨职能团队协作",
+      "category": "project-collaboration",
+      "difficulty": "基础",
+      "path": "data/project-collaboration/cross-functional-collaboration.md"
+    },
+    {
+      "id": "customer-journey-map",
+      "title": "用户旅程地图",
+      "category": "user-research",
+      "difficulty": "基础",
+      "path": "data/user-research/customer-journey-map.md"
+    },
+    {
+      "id": "data-analysis-limitations",
+      "title": "数据分析的局限与因果关系",
+      "category": "data-analysis",
+      "difficulty": "进阶",
+      "path": "data/data-analysis/data-analysis-limitations.md"
+    },
+    {
+      "id": "data-analysis-purpose-and-value",
+      "title": "数据分析的目的与价值",
+      "category": "data-analysis",
+      "difficulty": "入门",
+      "path": "data/data-analysis/data-analysis-purpose-and-value.md"
+    },
+    {
+      "id": "data-anomaly-analysis",
+      "title": "data-anomaly-analysis",
+      "category": "data-analysis",
+      "difficulty": "进阶",
+      "path": "data/data-analysis/data-anomaly-analysis.md"
+    },
+    {
+      "id": "data-driven-product-decision",
+      "title": "数据驱动产品决策",
+      "category": "data-analysis",
+      "difficulty": "进阶",
+      "path": "data/data-analysis/data-driven-product-decision.md"
+    },
+    {
+      "id": "data-permission",
+      "title": "数据权限",
+      "category": "b2b-enterprise",
+      "difficulty": "进阶",
+      "path": "data/b2b-enterprise/data-permission.md"
+    },
+    {
+      "id": "data-privacy-in-ai",
+      "title": "AI产品数据隐私与敏感信息保护",
+      "category": "ai-product",
+      "difficulty": "进阶",
+      "path": "data/ai-product/data-privacy-in-ai.md"
+    },
+    {
+      "id": "data-quality-and-instrumentation",
+      "title": "数据质量与埋点",
+      "category": "data-analysis",
+      "difficulty": "进阶",
+      "path": "data/data-analysis/data-quality-and-instrumentation.md"
+    },
+    {
+      "id": "decision-making",
+      "title": "产品项目决策机制",
+      "category": "project-collaboration",
+      "difficulty": "进阶",
+      "path": "data/project-collaboration/decision-making.md"
+    },
+    {
+      "id": "dependency-management",
+      "title": "项目依赖管理",
+      "category": "project-collaboration",
+      "difficulty": "进阶",
+      "path": "data/project-collaboration/dependency-management.md"
+    },
+    {
+      "id": "design-review",
+      "title": "产品设计评审",
+      "category": "product-design",
+      "difficulty": "进阶",
+      "path": "data/product-design/design-review.md"
+    },
+    {
+      "id": "document-cleaning-for-rag",
+      "title": "RAG文档清洗",
+      "category": "ai-product",
+      "difficulty": "进阶",
+      "path": "data/ai-product/document-cleaning-for-rag.md"
+    },
+    {
+      "id": "embedding",
+      "title": "Embedding向量表示",
+      "category": "ai-product",
+      "difficulty": "基础",
+      "path": "data/ai-product/embedding.md"
+    },
+    {
+      "id": "engagement-metrics",
+      "title": "用户参与度指标",
+      "category": "data-analysis",
+      "difficulty": "基础",
+      "path": "data/data-analysis/engagement-metrics.md"
+    },
+    {
+      "id": "enterprise-ai-permission",
+      "title": "企业AI中的权限与数据隔离",
+      "category": "b2b-enterprise",
+      "difficulty": "高级",
+      "path": "data/b2b-enterprise/enterprise-ai-permission.md"
+    },
+    {
+      "id": "enterprise-ai-product",
+      "title": "企业AI产品的基本形态",
+      "category": "b2b-enterprise",
+      "difficulty": "进阶",
+      "path": "data/b2b-enterprise/enterprise-ai-product.md"
+    },
+    {
+      "id": "enterprise-integration-basics",
+      "title": "企业系统集成基础",
+      "category": "b2b-enterprise",
+      "difficulty": "进阶",
+      "path": "data/b2b-enterprise/enterprise-integration-basics.md"
+    },
+    {
+      "id": "enterprise-permission-model",
+      "title": "企业产品权限模型",
+      "category": "b2b-enterprise",
+      "difficulty": "进阶",
+      "path": "data/b2b-enterprise/enterprise-permission-model.md"
+    },
+    {
+      "id": "enterprise-product-implementation",
+      "title": "B端产品实施与上线",
+      "category": "b2b-enterprise",
+      "difficulty": "进阶",
+      "path": "data/b2b-enterprise/enterprise-product-implementation.md"
+    },
+    {
+      "id": "enterprise-user-roles",
+      "title": "企业产品中的角色与利益相关者",
+      "category": "b2b-enterprise",
+      "difficulty": "基础",
+      "path": "data/b2b-enterprise/enterprise-user-roles.md"
+    },
+    {
+      "id": "evaluation-rubric",
+      "title": "AI评测Rubric设计",
+      "category": "ai-product",
+      "difficulty": "进阶",
+      "path": "data/ai-product/evaluation-rubric.md"
+    },
+    {
+      "id": "exception-and-edge-case-design",
+      "title": "异常与边界场景设计",
+      "category": "product-design",
+      "difficulty": "进阶",
+      "path": "data/product-design/exception-and-edge-case-design.md"
+    },
+    {
+      "id": "experiment-design",
+      "title": "A/B实验设计",
+      "category": "data-analysis",
+      "difficulty": "进阶",
+      "path": "data/data-analysis/experiment-design.md"
+    },
+    {
+      "id": "fallback-model",
+      "title": "AI模型降级与Fallback",
+      "category": "ai-product",
+      "difficulty": "进阶",
+      "path": "data/ai-product/fallback-model.md"
+    },
+    {
+      "id": "feature-decomposition",
+      "title": "功能拆解",
+      "category": "product-design",
+      "difficulty": "基础",
+      "path": "data/product-design/feature-decomposition.md"
+    },
+    {
+      "id": "follow-up-question-handling",
+      "title": "产品经理面试追问应对",
+      "category": "interview-job",
+      "difficulty": "基础",
+      "path": "data/interview-job/follow-up-question-handling.md"
+    },
+    {
+      "id": "form-design",
+      "title": "表单设计",
+      "category": "product-design",
+      "difficulty": "基础",
+      "path": "data/product-design/form-design.md"
+    },
+    {
+      "id": "freemium-model",
+      "title": "Freemium模式",
+      "category": "commercialization",
+      "difficulty": "进阶",
+      "path": "data/commercialization/freemium-model.md"
+    },
+    {
+      "id": "function-calling",
+      "title": "Function Calling与工具调用",
+      "category": "ai-product",
+      "difficulty": "基础",
+      "path": "data/ai-product/function-calling.md"
+    },
+    {
+      "id": "funnel-analysis",
+      "title": "漏斗分析",
+      "category": "data-analysis",
+      "difficulty": "基础",
+      "path": "data/data-analysis/funnel-analysis.md"
+    },
+    {
+      "id": "generation-evaluation",
+      "title": "LLM生成质量评测",
+      "category": "ai-product",
+      "difficulty": "进阶",
+      "path": "data/ai-product/generation-evaluation.md"
+    },
+    {
+      "id": "golden-set",
+      "title": "Golden Set（黄金评测集）",
+      "category": "ai-product",
+      "difficulty": "进阶",
+      "path": "data/ai-product/golden-set.md"
+    },
+    {
+      "id": "growth-experiment",
+      "title": "增长实验",
+      "category": "user-growth",
+      "difficulty": "进阶",
+      "path": "data/user-growth/growth-experiment.md"
+    },
+    {
+      "id": "growth-funnel",
+      "title": "增长漏斗",
+      "category": "user-growth",
+      "difficulty": "基础",
+      "path": "data/user-growth/growth-funnel.md"
+    },
+    {
+      "id": "guardrail-metrics",
+      "title": "护栏指标",
+      "category": "strategy-product",
+      "difficulty": "进阶",
+      "path": "data/strategy-product/guardrail-metrics.md"
+    },
+    {
+      "id": "hallucination-evaluation",
+      "title": "AI幻觉评测",
+      "category": "ai-product",
+      "difficulty": "进阶",
+      "path": "data/ai-product/hallucination-evaluation.md"
+    },
+    {
+      "id": "human-evaluation",
+      "title": "人工评测与专家评审",
+      "category": "ai-product",
+      "difficulty": "基础",
+      "path": "data/ai-product/human-evaluation.md"
+    },
+    {
+      "id": "hybrid-search",
+      "title": "RAG混合检索",
+      "category": "ai-product",
+      "difficulty": "进阶",
+      "path": "data/ai-product/hybrid-search.md"
+    },
+    {
+      "id": "information-architecture",
+      "title": "信息架构",
+      "category": "product-design",
+      "difficulty": "基础",
+      "path": "data/product-design/information-architecture.md"
+    },
+    {
+      "id": "interaction-design-principles",
+      "title": "交互设计基本原则",
+      "category": "product-design",
+      "difficulty": "基础",
+      "path": "data/product-design/interaction-design-principles.md"
+    },
+    {
+      "id": "interview-answer-quality",
+      "title": "产品经理面试回答质量",
+      "category": "interview-job",
+      "difficulty": "进阶",
+      "path": "data/interview-job/interview-answer-quality.md"
+    },
+    {
+      "id": "interview-answer-structure",
+      "title": "产品经理面试结构化表达",
+      "category": "interview-job",
+      "difficulty": "基础",
+      "path": "data/interview-job/interview-answer-structure.md"
+    },
+    {
+      "id": "interview-bias",
+      "title": "用户访谈中的偏差",
+      "category": "user-research",
+      "difficulty": "进阶",
+      "path": "data/user-research/interview-bias.md"
+    },
+    {
+      "id": "interview-feedback-and-iteration",
+      "title": "面试反馈与迭代",
+      "category": "interview-job",
+      "difficulty": "基础",
+      "path": "data/interview-job/interview-feedback-and-iteration.md"
+    },
+    {
+      "id": "interview-question-classification",
+      "title": "产品经理面试问题分类",
+      "category": "interview-job",
+      "difficulty": "入门",
+      "path": "data/interview-job/interview-question-classification.md"
+    },
+    {
+      "id": "interview-question-to-knowledge-mapping",
+      "title": "面试题与知识点映射",
+      "category": "interview-job",
+      "difficulty": "进阶",
+      "path": "data/interview-job/interview-question-to-knowledge-mapping.md"
+    },
+    {
+      "id": "interview-time-management",
+      "title": "产品经理面试时间管理",
+      "category": "interview-job",
+      "difficulty": "基础",
+      "path": "data/interview-job/interview-time-management.md"
+    },
+    {
+      "id": "interview-uncertainty-and-honesty",
+      "title": "面试中的不确定性表达",
+      "category": "interview-job",
+      "difficulty": "基础",
+      "path": "data/interview-job/interview-uncertainty-and-honesty.md"
+    },
+    {
+      "id": "issue-management",
+      "title": "项目问题管理",
+      "category": "project-collaboration",
+      "difficulty": "基础",
+      "path": "data/project-collaboration/issue-management.md"
+    },
+    {
+      "id": "job-description-analysis-for-pm-interview",
+      "title": "产品经理岗位要求分析",
+      "category": "interview-job",
+      "difficulty": "基础",
+      "path": "data/interview-job/job-description-analysis-for-pm-interview.md"
+    },
+    {
+      "id": "knowledge-base-design",
+      "title": "AI知识库设计",
+      "category": "ai-product",
+      "difficulty": "进阶",
+      "path": "data/ai-product/knowledge-base-design.md"
+    },
+    {
+      "id": "llm-as-judge",
+      "title": "LLM-as-a-Judge",
+      "category": "ai-product",
+      "difficulty": "进阶",
+      "path": "data/ai-product/llm-as-judge.md"
+    },
+    {
+      "id": "llm-basics",
+      "title": "大语言模型LLM基本原理",
+      "category": "ai-product",
+      "difficulty": "基础",
+      "path": "data/ai-product/llm-basics.md"
+    },
+    {
+      "id": "ltv",
+      "title": "LTV与用户生命周期价值",
+      "category": "user-growth",
+      "difficulty": "进阶",
+      "path": "data/user-growth/ltv.md"
+    },
+    {
+      "id": "ltv-cac",
+      "title": "LTV与CAC关系",
+      "category": "user-growth",
+      "difficulty": "进阶",
+      "path": "data/user-growth/ltv-cac.md"
+    },
+    {
+      "id": "machine-learning-basics",
+      "title": "机器学习基本概念",
+      "category": "ai-product",
+      "difficulty": "基础",
+      "path": "data/ai-product/machine-learning-basics.md"
+    },
+    {
+      "id": "metadata-filtering",
+      "title": "RAG元数据过滤",
+      "category": "ai-product",
+      "difficulty": "进阶",
+      "path": "data/ai-product/metadata-filtering.md"
+    },
+    {
+      "id": "metric-decomposition",
+      "title": "指标拆解",
+      "category": "data-analysis",
+      "difficulty": "进阶",
+      "path": "data/data-analysis/metric-decomposition.md"
+    },
+    {
+      "id": "metric-definition-and-dimension",
+      "title": "指标口径与维度",
+      "category": "data-analysis",
+      "difficulty": "基础",
+      "path": "data/data-analysis/metric-definition-and-dimension.md"
+    },
+    {
+      "id": "mobile-first-design",
+      "title": "Mobile First 产品设计",
+      "category": "product-design",
+      "difficulty": "基础",
+      "path": "data/product-design/mobile-first-design.md"
+    },
+    {
+      "id": "model-routing",
+      "title": "模型路由与多模型策略",
+      "category": "ai-product",
+      "difficulty": "高级",
+      "path": "data/ai-product/model-routing.md"
+    },
+    {
+      "id": "model-selection-engineering",
+      "title": "AI模型选择方法",
+      "category": "ai-product",
+      "difficulty": "进阶",
+      "path": "data/ai-product/model-selection-engineering.md"
+    },
+    {
+      "id": "model-selection-for-pm",
+      "title": "AI模型选择",
+      "category": "ai-product",
+      "difficulty": "进阶",
+      "path": "data/ai-product/model-selection-for-pm.md"
+    },
+    {
+      "id": "monetization-and-user-value",
+      "title": "商业化与用户价值的关系",
+      "category": "commercialization",
+      "difficulty": "进阶",
+      "path": "data/commercialization/monetization-and-user-value.md"
+    },
+    {
+      "id": "monetization-funnel",
+      "title": "商业化漏斗",
+      "category": "commercialization",
+      "difficulty": "进阶",
+      "path": "data/commercialization/monetization-funnel.md"
+    },
+    {
+      "id": "monetization-model",
+      "title": "商业化模式",
+      "category": "commercialization",
+      "difficulty": "基础",
+      "path": "data/commercialization/monetization-model.md"
+    },
+    {
+      "id": "mvp",
+      "title": "MVP（最小可行产品）",
+      "category": "product-foundation",
+      "difficulty": "基础",
+      "path": "data/product-foundation/mvp.md"
+    },
+    {
+      "id": "north-star-metric",
+      "title": "北极星指标",
+      "category": "data-analysis",
+      "difficulty": "进阶",
+      "path": "data/data-analysis/north-star-metric.md"
+    },
+    {
+      "id": "offline-online-evaluation",
+      "title": "离线评测与线上评测",
+      "category": "ai-product",
+      "difficulty": "进阶",
+      "path": "data/ai-product/offline-online-evaluation.md"
+    },
+    {
+      "id": "onboarding",
+      "title": "新用户引导",
+      "category": "user-growth",
+      "difficulty": "基础",
+      "path": "data/user-growth/onboarding.md"
+    },
+    {
+      "id": "organization-model",
+      "title": "企业组织架构与数据关系",
+      "category": "b2b-enterprise",
+      "difficulty": "进阶",
+      "path": "data/b2b-enterprise/organization-model.md"
+    },
+    {
+      "id": "page-structure-and-content-hierarchy",
+      "title": "页面结构与信息层级",
+      "category": "product-design",
+      "difficulty": "基础",
+      "path": "data/product-design/page-structure-and-content-hierarchy.md"
+    },
+    {
+      "id": "pairwise-evaluation",
+      "title": "Pairwise评测",
+      "category": "ai-product",
+      "difficulty": "进阶",
+      "path": "data/ai-product/pairwise-evaluation.md"
+    },
+    {
+      "id": "persona",
+      "title": "用户画像 Persona",
+      "category": "user-research",
+      "difficulty": "基础",
+      "path": "data/user-research/persona.md"
+    },
+    {
+      "id": "personalized-strategy",
+      "title": "个性化策略",
+      "category": "strategy-product",
+      "difficulty": "进阶",
+      "path": "data/strategy-product/personalized-strategy.md"
+    },
+    {
+      "id": "pm-interview-learning-loop",
+      "title": "产品经理面试学习闭环",
+      "category": "interview-job",
+      "difficulty": "进阶",
+      "path": "data/interview-job/pm-interview-learning-loop.md"
+    },
+    {
+      "id": "pm-interview-preparation-basics",
+      "title": "产品经理面试准备基础",
+      "category": "interview-job",
+      "difficulty": "入门",
+      "path": "data/interview-job/pm-interview-preparation-basics.md"
+    },
+    {
+      "id": "pm-interview-self-introduction",
+      "title": "产品经理面试自我介绍",
+      "category": "interview-job",
+      "difficulty": "入门",
+      "path": "data/interview-job/pm-interview-self-introduction.md"
+    },
+    {
+      "id": "prd",
+      "title": "prd",
+      "category": "product-design",
+      "difficulty": "基础",
+      "path": "data/product-design/prd.md"
+    },
+    {
+      "id": "pricing-strategy",
+      "title": "定价策略",
+      "category": "commercialization",
+      "difficulty": "进阶",
+      "path": "data/commercialization/pricing-strategy.md"
+    },
+    {
+      "id": "product-case-interview-method",
+      "title": "产品案例题分析方法",
+      "category": "interview-job",
+      "difficulty": "基础",
+      "path": "data/interview-job/product-case-interview-method.md"
+    },
+    {
+      "id": "product-decision-tradeoffs",
+      "title": "产品决策与 Trade-off",
+      "category": "product-foundation",
+      "difficulty": "进阶",
+      "path": "data/product-foundation/product-decision-tradeoffs.md"
+    },
+    {
+      "id": "product-design-purpose-and-boundary",
+      "title": "产品设计的目标与边界",
+      "category": "product-design",
+      "difficulty": "基础",
+      "path": "data/product-design/product-design-purpose-and-boundary.md"
+    },
+    {
+      "id": "product-goal-and-success-criteria",
+      "title": "产品目标与成功标准",
+      "category": "product-foundation",
+      "difficulty": "基础",
+      "path": "data/product-foundation/product-goal-and-success-criteria.md"
+    },
+    {
+      "id": "product-iteration-loop",
+      "title": "产品迭代闭环",
+      "category": "product-foundation",
+      "difficulty": "基础",
+      "path": "data/product-foundation/product-iteration-loop.md"
+    },
+    {
+      "id": "product-lifecycle",
+      "title": "产品生命周期",
+      "category": "product-foundation",
+      "difficulty": "基础",
+      "path": "data/product-foundation/product-lifecycle.md"
+    },
+    {
+      "id": "product-manager-core-responsibilities",
+      "title": "产品经理的核心职责",
+      "category": "product-foundation",
+      "difficulty": "入门",
+      "path": "data/product-foundation/product-manager-core-responsibilities.md"
+    },
+    {
+      "id": "product-metrics-basics",
+      "title": "产品指标基础",
+      "category": "data-analysis",
+      "difficulty": "入门",
+      "path": "data/data-analysis/product-metrics-basics.md"
+    },
+    {
+      "id": "product-positioning",
+      "title": "产品定位",
+      "category": "product-foundation",
+      "difficulty": "基础",
+      "path": "data/product-foundation/product-positioning.md"
+    },
+    {
+      "id": "product-project-management-basics",
+      "title": "产品经理项目管理基础",
+      "category": "project-collaboration",
+      "difficulty": "入门",
+      "path": "data/project-collaboration/product-project-management-basics.md"
+    },
+    {
+      "id": "product-value-and-business-value",
+      "title": "用户价值与商业价值",
+      "category": "product-foundation",
+      "difficulty": "基础",
+      "path": "data/product-foundation/product-value-and-business-value.md"
+    },
+    {
+      "id": "project-goal-and-success-criteria",
+      "title": "项目目标与成功标准",
+      "category": "project-collaboration",
+      "difficulty": "基础",
+      "path": "data/project-collaboration/project-goal-and-success-criteria.md"
+    },
+    {
+      "id": "project-knowledge-management",
+      "title": "项目知识沉淀",
+      "category": "project-collaboration",
+      "difficulty": "基础",
+      "path": "data/project-collaboration/project-knowledge-management.md"
+    },
+    {
+      "id": "project-plan-and-milestone",
+      "title": "项目计划与里程碑",
+      "category": "project-collaboration",
+      "difficulty": "基础",
+      "path": "data/project-collaboration/project-plan-and-milestone.md"
+    },
+    {
+      "id": "project-retrospective",
+      "title": "项目复盘方法",
+      "category": "project-collaboration",
+      "difficulty": "基础",
+      "path": "data/project-collaboration/project-retrospective.md"
+    },
+    {
+      "id": "project-risk-management",
+      "title": "项目风险管理",
+      "category": "project-collaboration",
+      "difficulty": "进阶",
+      "path": "data/project-collaboration/project-risk-management.md"
+    },
+    {
+      "id": "project-scope-management",
+      "title": "项目范围管理",
+      "category": "project-collaboration",
+      "difficulty": "基础",
+      "path": "data/project-collaboration/project-scope-management.md"
+    },
+    {
+      "id": "project-status-reporting",
+      "title": "项目进度与状态同步",
+      "category": "project-collaboration",
+      "difficulty": "基础",
+      "path": "data/project-collaboration/project-status-reporting.md"
+    },
+    {
+      "id": "project-storytelling",
+      "title": "产品项目经历讲述",
+      "category": "interview-job",
+      "difficulty": "基础",
+      "path": "data/interview-job/project-storytelling.md"
+    },
+    {
+      "id": "prompt-engineering",
+      "title": "Prompt工程基础",
+      "category": "ai-product",
+      "difficulty": "基础",
+      "path": "data/ai-product/prompt-engineering.md"
+    },
+    {
+      "id": "prompt-injection",
+      "title": "Prompt Injection与间接提示注入",
+      "category": "ai-product",
+      "difficulty": "进阶",
+      "path": "data/ai-product/prompt-injection.md"
+    },
+    {
+      "id": "prototype-and-fidelity",
+      "title": "原型与保真度",
+      "category": "product-design",
+      "difficulty": "基础",
+      "path": "data/product-design/prototype-and-fidelity.md"
+    },
+    {
+      "id": "prototype-testing",
+      "title": "原型测试",
+      "category": "user-research",
+      "difficulty": "基础",
+      "path": "data/user-research/prototype-testing.md"
+    },
+    {
+      "id": "qualitative-vs-quantitative-research",
+      "title": "定性研究与定量研究",
+      "category": "user-research",
+      "difficulty": "基础",
+      "path": "data/user-research/qualitative-vs-quantitative-research.md"
+    },
+    {
+      "id": "query-rewriting",
+      "title": "RAG Query改写",
+      "category": "ai-product",
+      "difficulty": "进阶",
+      "path": "data/ai-product/query-rewriting.md"
+    },
+    {
+      "id": "questionnaire-design",
+      "title": "用户问卷设计",
+      "category": "user-research",
+      "difficulty": "基础",
+      "path": "data/user-research/questionnaire-design.md"
+    },
+    {
+      "id": "rag-basics",
+      "title": "RAG基本原理",
+      "category": "ai-product",
+      "difficulty": "基础",
+      "path": "data/ai-product/rag-basics.md"
+    },
+    {
+      "id": "rag-evaluation",
+      "title": "RAG评测基础",
+      "category": "ai-product",
+      "difficulty": "进阶",
+      "path": "data/ai-product/rag-evaluation.md"
+    },
+    {
+      "id": "rag-failure-diagnosis",
+      "title": "RAG常见失败模式与问题定位",
+      "category": "ai-product",
+      "difficulty": "高级",
+      "path": "data/ai-product/rag-failure-diagnosis.md"
+    },
+    {
+      "id": "rag-source-citation",
+      "title": "RAG来源引用与可追溯性",
+      "category": "ai-product",
+      "difficulty": "进阶",
+      "path": "data/ai-product/rag-source-citation.md"
+    },
+    {
+      "id": "rag-use-case-selection",
+      "title": "RAG适用场景与不适用场景",
+      "category": "ai-product",
+      "difficulty": "基础",
+      "path": "data/ai-product/rag-use-case-selection.md"
+    },
+    {
+      "id": "ranking-strategy",
+      "title": "排序策略",
+      "category": "strategy-product",
+      "difficulty": "进阶",
+      "path": "data/strategy-product/ranking-strategy.md"
+    },
+    {
+      "id": "recommendation-system-basics",
+      "title": "推荐系统基本原理",
+      "category": "strategy-product",
+      "difficulty": "进阶",
+      "path": "data/strategy-product/recommendation-system-basics.md"
+    },
+    {
+      "id": "regression-evaluation",
+      "title": "AI回归评测",
+      "category": "ai-product",
+      "difficulty": "进阶",
+      "path": "data/ai-product/regression-evaluation.md"
+    },
+    {
+      "id": "requirement-alignment",
+      "title": "需求对齐与共同理解",
+      "category": "project-collaboration",
+      "difficulty": "基础",
+      "path": "data/project-collaboration/requirement-alignment.md"
+    },
+    {
+      "id": "requirement-analysis-framework",
+      "title": "需求分析基本框架",
+      "category": "product-foundation",
+      "difficulty": "基础",
+      "path": "data/product-foundation/requirement-analysis-framework.md"
+    },
+    {
+      "id": "requirement-priority",
+      "title": "需求优先级",
+      "category": "product-foundation",
+      "difficulty": "基础",
+      "path": "data/product-foundation/requirement-priority.md"
+    },
+    {
+      "id": "requirement-source-and-requirement-pool",
+      "title": "需求来源与需求池",
+      "category": "product-foundation",
+      "difficulty": "基础",
+      "path": "data/product-foundation/requirement-source-and-requirement-pool.md"
+    },
+    {
+      "id": "reranking",
+      "title": "RAG重排序Rerank",
+      "category": "ai-product",
+      "difficulty": "进阶",
+      "path": "data/ai-product/reranking.md"
+    },
+    {
+      "id": "research-insight-and-evidence",
+      "title": "从研究资料提炼用户洞察",
+      "category": "user-research",
+      "difficulty": "进阶",
+      "path": "data/user-research/research-insight-and-evidence.md"
+    },
+    {
+      "id": "research-question-design",
+      "title": "用户研究问题设计",
+      "category": "user-research",
+      "difficulty": "基础",
+      "path": "data/user-research/research-question-design.md"
+    },
+    {
+      "id": "research-sampling",
+      "title": "用户研究中的样本选择",
+      "category": "user-research",
+      "difficulty": "进阶",
+      "path": "data/user-research/research-sampling.md"
+    },
+    {
+      "id": "resume-to-interview-evidence",
+      "title": "简历经历与面试证据链",
+      "category": "interview-job",
+      "difficulty": "基础",
+      "path": "data/interview-job/resume-to-interview-evidence.md"
+    },
+    {
+      "id": "retention-rate",
+      "title": "留存率",
+      "category": "data-analysis",
+      "difficulty": "基础",
+      "path": "data/data-analysis/retention-rate.md"
+    },
+    {
+      "id": "retrieval",
+      "title": "RAG检索",
+      "category": "ai-product",
+      "difficulty": "进阶",
+      "path": "data/ai-product/retrieval.md"
+    },
+    {
+      "id": "retrieval-evaluation",
+      "title": "RAG检索质量评测",
+      "category": "ai-product",
+      "difficulty": "进阶",
+      "path": "data/ai-product/retrieval-evaluation.md"
+    },
+    {
+      "id": "retry-strategy",
+      "title": "AI请求重试策略",
+      "category": "ai-product",
+      "difficulty": "进阶",
+      "path": "data/ai-product/retry-strategy.md"
+    },
+    {
+      "id": "rice-prioritization",
+      "title": "RICE 需求优先级模型",
+      "category": "product-foundation",
+      "difficulty": "进阶",
+      "path": "data/product-foundation/rice-prioritization.md"
+    },
+    {
+      "id": "rule-based-strategy",
+      "title": "规则策略",
+      "category": "strategy-product",
+      "difficulty": "基础",
+      "path": "data/strategy-product/rule-based-strategy.md"
+    },
+    {
+      "id": "rule-engine",
+      "title": "规则引擎",
+      "category": "strategy-product",
+      "difficulty": "进阶",
+      "path": "data/strategy-product/rule-engine.md"
+    },
+    {
+      "id": "saas-product-model",
+      "title": "SaaS产品基本模式",
+      "category": "b2b-enterprise",
+      "difficulty": "基础",
+      "path": "data/b2b-enterprise/saas-product-model.md"
+    },
+    {
+      "id": "stakeholder-analysis",
+      "title": "B端利益相关者分析",
+      "category": "b2b-enterprise",
+      "difficulty": "进阶",
+      "path": "data/b2b-enterprise/stakeholder-analysis.md"
+    },
+    {
+      "id": "standardization-vs-customization",
+      "title": "标准化与定制化的取舍",
+      "category": "b2b-enterprise",
+      "difficulty": "进阶",
+      "path": "data/b2b-enterprise/standardization-vs-customization.md"
+    },
+    {
+      "id": "state-design",
+      "title": "状态设计",
+      "category": "product-design",
+      "difficulty": "进阶",
+      "path": "data/product-design/state-design.md"
+    },
+    {
+      "id": "statistical-significance-for-pm",
+      "title": "统计显著性与样本量的产品经理理解",
+      "category": "data-analysis",
+      "difficulty": "高级",
+      "path": "data/data-analysis/statistical-significance-for-pm.md"
+    },
+    {
+      "id": "strategy-experiment",
+      "title": "策略实验与灰度发布",
+      "category": "strategy-product",
+      "difficulty": "进阶",
+      "path": "data/strategy-product/strategy-experiment.md"
+    },
+    {
+      "id": "strategy-feedback-loop",
+      "title": "策略反馈闭环",
+      "category": "strategy-product",
+      "difficulty": "高级",
+      "path": "data/strategy-product/strategy-feedback-loop.md"
+    },
+    {
+      "id": "strategy-monitoring",
+      "title": "策略监控与异常诊断",
+      "category": "strategy-product",
+      "difficulty": "进阶",
+      "path": "data/strategy-product/strategy-monitoring.md"
+    },
+    {
+      "id": "strategy-objective-and-constraints",
+      "title": "策略目标与约束条件",
+      "category": "strategy-product",
+      "difficulty": "基础",
+      "path": "data/strategy-product/strategy-objective-and-constraints.md"
+    },
+    {
+      "id": "strategy-product-purpose",
+      "title": "策略产品的目的与基本框架",
+      "category": "strategy-product",
+      "difficulty": "基础",
+      "path": "data/strategy-product/strategy-product-purpose.md"
+    },
+    {
+      "id": "strategy-tradeoff",
+      "title": "策略中的多目标取舍",
+      "category": "strategy-product",
+      "difficulty": "高级",
+      "path": "data/strategy-product/strategy-tradeoff.md"
+    },
+    {
+      "id": "strategy-versioning",
+      "title": "策略版本管理",
+      "category": "strategy-product",
+      "difficulty": "进阶",
+      "path": "data/strategy-product/strategy-versioning.md"
+    },
+    {
+      "id": "structured-output",
+      "title": "LLM结构化输出",
+      "category": "ai-product",
+      "difficulty": "进阶",
+      "path": "data/ai-product/structured-output.md"
+    },
+    {
+      "id": "task-flow-vs-user-flow",
+      "title": "Task Flow 与 User Flow",
+      "category": "product-design",
+      "difficulty": "进阶",
+      "path": "data/product-design/task-flow-vs-user-flow.md"
+    },
+    {
+      "id": "task-success-rate",
+      "title": "AI任务成功率",
+      "category": "ai-product",
+      "difficulty": "基础",
+      "path": "data/ai-product/task-success-rate.md"
+    },
+    {
+      "id": "token-and-context",
+      "title": "Token、上下文窗口与上下文管理",
+      "category": "ai-product",
+      "difficulty": "基础",
+      "path": "data/ai-product/token-and-context.md"
+    },
+    {
+      "id": "tool-design",
+      "title": "AI Tool设计",
+      "category": "ai-product",
+      "difficulty": "进阶",
+      "path": "data/ai-product/tool-design.md"
+    },
+    {
+      "id": "tool-permission",
+      "title": "Agent工具权限与安全边界",
+      "category": "ai-product",
+      "difficulty": "高级",
+      "path": "data/ai-product/tool-permission.md"
+    },
+    {
+      "id": "tradeoff-in-product-design",
+      "title": "产品设计中的取舍",
+      "category": "product-design",
+      "difficulty": "进阶",
+      "path": "data/product-design/tradeoff-in-product-design.md"
+    },
+    {
+      "id": "usability-testing",
+      "title": "可用性测试",
+      "category": "user-research",
+      "difficulty": "基础",
+      "path": "data/user-research/usability-testing.md"
+    },
+    {
+      "id": "user-acquisition",
+      "title": "用户获取",
+      "category": "user-growth",
+      "difficulty": "基础",
+      "path": "data/user-growth/user-acquisition.md"
+    },
+    {
+      "id": "user-business-product-requirement-distinction",
+      "title": "用户需求、业务需求与产品需求",
+      "category": "product-foundation",
+      "difficulty": "基础",
+      "path": "data/product-foundation/user-business-product-requirement-distinction.md"
+    },
+    {
+      "id": "user-flow",
+      "title": "用户流程",
+      "category": "product-design",
+      "difficulty": "基础",
+      "path": "data/product-design/user-flow.md"
+    },
+    {
+      "id": "user-growth-purpose-and-framework",
+      "title": "用户增长的目的与基本框架",
+      "category": "user-growth",
+      "difficulty": "入门",
+      "path": "data/user-growth/user-growth-purpose-and-framework.md"
+    },
+    {
+      "id": "user-interview",
+      "title": "用户访谈",
+      "category": "user-research",
+      "difficulty": "基础",
+      "path": "data/user-research/user-interview.md"
+    },
+    {
+      "id": "user-interview-guide",
+      "title": "用户访谈提纲设计",
+      "category": "user-research",
+      "difficulty": "基础",
+      "path": "data/user-research/user-interview-guide.md"
+    },
+    {
+      "id": "user-lifecycle",
+      "title": "用户生命周期",
+      "category": "user-growth",
+      "difficulty": "基础",
+      "path": "data/user-growth/user-lifecycle.md"
+    },
+    {
+      "id": "user-problem-vs-user-need",
+      "title": "用户问题、痛点、需求与动机",
+      "category": "product-foundation",
+      "difficulty": "基础",
+      "path": "data/product-foundation/user-problem-vs-user-need.md"
+    },
+    {
+      "id": "user-research-purpose-and-value",
+      "title": "用户研究的目的与价值",
+      "category": "user-research",
+      "difficulty": "入门",
+      "path": "data/user-research/user-research-purpose-and-value.md"
+    },
+    {
+      "id": "user-scenario-and-task",
+      "title": "用户场景与任务建模",
+      "category": "product-design",
+      "difficulty": "基础",
+      "path": "data/product-design/user-scenario-and-task.md"
+    },
+    {
+      "id": "user-segmentation",
+      "title": "用户分群",
+      "category": "user-research",
+      "difficulty": "进阶",
+      "path": "data/user-research/user-segmentation.md"
+    },
+    {
+      "id": "user-segmentation-strategy",
+      "title": "用户分层与策略",
+      "category": "strategy-product",
+      "difficulty": "基础",
+      "path": "data/strategy-product/user-segmentation-strategy.md"
+    },
+    {
+      "id": "user-story",
+      "title": "user-story",
+      "category": "product-foundation",
+      "difficulty": "基础",
+      "path": "data/product-foundation/user-story.md"
+    },
+    {
+      "id": "user-target-and-core-scenario",
+      "title": "目标用户与核心场景",
+      "category": "product-foundation",
+      "difficulty": "基础",
+      "path": "data/product-foundation/user-target-and-core-scenario.md"
+    },
+    {
+      "id": "vector-database",
+      "title": "向量数据库",
+      "category": "ai-product",
+      "difficulty": "基础",
+      "path": "data/ai-product/vector-database.md"
+    },
+    {
+      "id": "viral-growth-and-referral",
+      "title": "用户推荐与病毒式增长",
+      "category": "user-growth",
+      "difficulty": "进阶",
+      "path": "data/user-growth/viral-growth-and-referral.md"
+    },
+    {
+      "id": "willingness-to-pay",
+      "title": "用户支付意愿",
+      "category": "commercialization",
+      "difficulty": "进阶",
+      "path": "data/commercialization/willingness-to-pay.md"
+    },
+    {
+      "id": "workflow-engine",
+      "title": "工作流与流程引擎",
+      "category": "b2b-enterprise",
+      "difficulty": "进阶",
+      "path": "data/b2b-enterprise/workflow-engine.md"
+    },
+    {
+      "id": "workflow-vs-agent",
+      "title": "AI Workflow与Agent的区别",
+      "category": "ai-product",
+      "difficulty": "进阶",
+      "path": "data/ai-product/workflow-vs-agent.md"
+    }
   ]
 }
