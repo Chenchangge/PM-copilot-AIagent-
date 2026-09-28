@@ -16,9 +16,9 @@
 
 ## 已实现能力
 
-- **知识库**：45 个 Markdown 知识点（`knowledge/data/`），提供 `GET /api/knowledge`（列表 / 分类）与 `GET /api/knowledge/{slug}`（结构化详情：定义 / 核心内容 / 场景 / 关注点 / 面试题+参考答案）。
+- **知识库**：226 个 Markdown 知识点（`knowledge/data/`），提供 `GET /api/knowledge`（列表 / 分类）与 `GET /api/knowledge/{slug}`（结构化详情：定义 / 核心内容 / 场景 / 关注点 / 面试题+参考答案）。
 - **AI 知识问答（RAG）**：Markdown → 分块 → Embedding → Chroma → 检索 → LLM 生成回答（带来源引用）。
-- **AI 模拟面试**：静态题库（30 题）+ LLM 动态追问 + 结构化输出，多轮主问题 + 追问。
+- **AI 模拟面试**：静态题库（211 题）+ LLM 动态追问 + 结构化输出，多轮主问题 + 追问。
 - **AI 面试评价**：五维评分（产品思维/需求分析/逻辑与表达/AI知识/业务意识）+ 可追溯 Evidence + 后端加权总分 + 规则驱动的知识推荐（与评价推荐点形成学习闭环）。
 - **多模型 / BYOK**：用户自行配置模型 API Key（平台不提供统一额度），支持 DeepSeek 与 Custom OpenAI-compatible Provider；模型能力由 Capability Registry 推导（文本生成 / 推理 / 结构化输出 / 多模态 / 图像生成 / Embedding），按功能路由。Embedding 当前使用 Custom OpenAI-compatible（`custom / text-embedding-v4`），非 Qwen 专属 Provider。Key 全程由后端安全处理，不落前端 / 日志 / Git。
 
@@ -80,8 +80,8 @@ Weakness（弱项判定）
 
 | 项 | 值 |
 | --- | --- |
-| 知识文档 | 45 |
-| 分块 | 270 |
+| 知识文档 | 226 |
+| 分块 | 1370 |
 | Embedding 模型 | text-embedding-v4 |
 | Provider | custom（OpenAI-compatible） |
 | 维度 | 1024 |
