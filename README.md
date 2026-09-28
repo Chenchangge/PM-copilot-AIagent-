@@ -97,6 +97,8 @@ Weakness（弱项判定）
 
 ## 快速开始
 
+> 完整服务器部署步骤（环境准备 / 拉取代码 / 建索引 / 公网访问）见 **[DEPLOYMENT.md](DEPLOYMENT.md)**。
+
 ### 1. 前端
 
 ```bash
