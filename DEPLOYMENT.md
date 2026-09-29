@@ -45,6 +45,10 @@ npm -v
 
 > ⚠️ **不装的话**，chromadb 调向量库时会报「python 已停止工作」（崩溃模块 `MSVCP140.dll`，异常 `c0000005`）。
 
+### 4.安装Git
+
+- 访问git官网：https://git-scm.com/ 下载最新版本默认一路安装即可
+
 ---
 
 ## 二、拉取代码
@@ -53,13 +57,6 @@ npm -v
 git clone https://github.com/Chenchangge/PM-copilot-AIagent-.git pm-copilot
 cd pm-copilot
 ```
-
-> 说明：仓库里**只包含代码 + `knowledge/` 数据**。以下目录已被 `.gitignore` 忽略、不在仓库里，本地运行时自动生成，无需手动清理：
->
-> - `frontend/node_modules/`
-> - `backend/.venv/`
-> - 所有 `__pycache__/`
-> - `backend/data/chroma/`（向量库，运行时重新构建）
 
 ---
 
@@ -78,10 +75,33 @@ py -3.12 -m venv .venv
 ```bash
 pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
 ```
+```
+  若安装依赖时出现如下类型错误：
+      【error: subprocess-exited-with-error
 
+    × Building wheel for chroma-hnswlib (pyproject.toml) did not run successfully.
+    │ exit code: 1
+    ╰─> [5 lines of output]
+        running bdist_wheel
+        running build
+        running build_ext
+        building 'hnswlib' extension
+        error: Microsoft Visual C++ 14.0 or greater is required. Get it with "Microsoft C++ Build Tools":
+  https://visualstudio.microsoft.com/visual-cpp-build-tools/
+        [end of output]
+
+    note: This error originates from a subprocess, and is likely not a problem with pip.
+    ERROR: Failed building wheel for chroma-hnswlib
+  Failed to build chroma-hnswlib
+
+  [notice] A new release of pip is available: 24.2 -> 26.2.1
+  [notice] To update, run: C:\PM\pm-copilot\backend\.venv\Scripts\python.exe -m pip install --upgrade pip
+  ERROR: ERROR: Failed to build installable wheels for some pyproject.toml based projects (chroma-hnswlib)】
+  则访问：https://visualstudio.microsoft.com/visual-cpp-build-tools/ 下载，安装时（安装需要挺久）勾选「使用 C++ 的桌面开发」工作负载 ，安装成功后再次在同一终端执行第二步安装依赖命令
+```
 > `requirements.txt` 里 chromadb 已锁定 `>=0.5,<1.0`，会自动装 0.5.x（1.x 在 Windows 上查询向量会崩溃）。
 
-### 3. 配置 `.env`（⚠️ 在项目根目录，不是 backend 里）
+### 3. 配置 `.env`（⚠️ 在项目根目录，不是 backend 里）【该步骤的两个api key不是必填，部署好后在页面添加同样可以】
 
 在 `pm-copilot/` 根目录新建 `.env`，内容如下。**⚠️ 必须把两个 API Key 填成真实、可用的 Key**（这是服务器默认模型，访客直接用，不用自己配 Key）：
 
@@ -132,6 +152,8 @@ python -m app.scripts.build_knowledge_index
 
 ```bash
 uvicorn app.main:app --host 0.0.0.0 --port 8010
+
+注意：启动后端时是在（.venv）环境里启动用如上命令，若是在~backend路径下终端则使用【.venv\Scripts\python.exe -m uvicorn app.main:app --host 0.0.0.0 --port 8010】
 ```
 
 看到 `Uvicorn running on http://0.0.0.0:8010` 即成功。
@@ -154,7 +176,7 @@ npm run dev
 
 ---
 
-## 五、公网访问（别人能访问）
+## 五、公网访问
 
 这台机器如果是内网（家庭宽带 / 联通 NAT，`ipconfig` 显示 `10.x / 172.x / 192.168.x`），公网 IP 是运营商 NAT，别人无法直接 IP 访问，要用内网穿透：
 
