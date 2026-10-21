@@ -7,6 +7,7 @@ import ChoiceGroup from '@/components/ui/ChoiceGroup.vue'
 import PrimaryButton from '@/components/ui/PrimaryButton.vue'
 import SectionTitle from '@/components/ui/SectionTitle.vue'
 import { createInterviewSession } from '@/api/interview'
+import { resolveModel } from '@/api/models'
 import { difficultyLevels, interviewTypes, productDirections } from '@/constants/interview'
 import { extractInterviewError, needsModelConfig } from '@/utils/interview'
 
@@ -26,6 +27,13 @@ async function start() {
   error.value = ''
   errorCode.value = ''
   try {
+    // 进入会话前先预检：缺模型时在设置页给出出口，避免写完回答才报错。
+    const resolved = await resolveModel(['text_generation', 'reasoning', 'structured_output'])
+    if (!resolved.models?.length && !resolved.using_server_default) {
+      errorCode.value = 'INTERVIEW_MODEL_NOT_FOUND'
+      error.value = '还没有可用于模拟面试的文本生成模型，请先配置模型，或先去知识库看看。'
+      return
+    }
     const data = await createInterviewSession({
       direction: direction.value,
       difficulty: difficulty.value,
@@ -61,18 +69,27 @@ async function start() {
 
       <div v-if="error" class="rounded-2xl bg-red-50 p-4">
         <p class="text-sm text-red-600">{{ error }}</p>
-        <button
-          v-if="needsModelConfig(errorCode)"
-          type="button"
-          class="mt-2 text-sm font-medium text-brand-600"
-          @click="router.push('/profile/ai-models')"
-        >
-          去配置模型
-        </button>
+        <div v-if="needsModelConfig(errorCode)" class="mt-3 flex flex-wrap gap-2">
+          <button
+            type="button"
+            class="rounded-full bg-brand-600 px-3.5 py-2 text-xs font-medium text-white"
+            @click="router.push('/profile/ai-models')"
+          >
+            去配置模型
+          </button>
+          <button
+            type="button"
+            class="rounded-full border border-gray-200 bg-white px-3.5 py-2 text-xs text-gray-600"
+            @click="router.push('/learning/knowledge')"
+          >
+            先看看知识库
+          </button>
+        </div>
       </div>
     </div>
     <div class="shrink-0 border-t border-gray-100 bg-white px-5 py-3">
-      <PrimaryButton :disabled="starting" @click="start">{{ starting ? '创建中…' : '开始面试' }}</PrimaryButton>
+      <p class="mb-2 text-center text-[11px] text-gray-400">开始前会检查文本生成模型；缺模型会在这里提示</p>
+      <PrimaryButton :disabled="starting" @click="start">{{ starting ? '检查中…' : '开始面试' }}</PrimaryButton>
     </div>
   </div>
 </template>

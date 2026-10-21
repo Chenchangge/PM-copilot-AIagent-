@@ -9,8 +9,8 @@ import { errorMessageFor, needsModelConfig } from '@/utils/knowledge'
 
 const router = useRouter()
 
-// 快捷问题（仅占位，点击后直接发送，不自动调用 API）
-const QUICK_QUESTIONS = ['什么是 MVP？', '如何做用户需求分析？', '什么是 RICE？', 'RAG 是什么？']
+// 首访引导：3 个高频问题，点击直接发送（保留原快捷问题能力）
+const QUICK_QUESTIONS = ['什么是 MVP？', '如何做用户需求分析？', 'RAG 是什么？']
 
 const input = ref('')
 const messages = ref([])
@@ -141,6 +141,7 @@ function resetInputHeight() {
         description="试着问一个产品问题，我会结合知识库回答。"
       >
         <template #action>
+          <p class="mb-2 text-xs text-gray-400">先试试这 3 个问题</p>
           <div class="flex flex-wrap justify-center gap-2">
             <button
               v-for="q in QUICK_QUESTIONS"

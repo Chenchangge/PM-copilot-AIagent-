@@ -149,8 +149,15 @@ class ModelService:
         ).scalars().all()
         eligible = model_router.find_models_by_capabilities(rows, required_capabilities)
         models = [self._to_out(m) for m in eligible]
-        message = None if models else "没有找到满足当前能力要求的模型"
-        return ResolveResult(models=models, message=message)
+        server_defaults = _server_default_models_for(required_capabilities)
+        available = bool(models or server_defaults)
+        message = None if available else "没有找到满足当前能力要求的模型"
+        return ResolveResult(
+            models=models,
+            using_server_default=bool(server_defaults),
+            server_default_models=server_defaults,
+            message=message,
+        )
 
     def find_embedding_model(self, user_id: str) -> UserModelConfig | None:
         """查找可用的 Embedding 模型（capabilities.embedding == supported）。"""
@@ -188,8 +195,35 @@ class ModelService:
         return eligible[0] if eligible else _server_default_llm()
 
 
+def _server_defaults_enabled() -> bool:
+    """测试环境不启用服务器默认模型，避免单测调用真实 API/依赖本地 .env。"""
+    return settings.environment != "test"
+
+
+def _server_default_models_for(required_capabilities: list[str]) -> list[str]:
+    """服务器默认模型是否能覆盖所需能力；返回展示名列表（空列表=不能覆盖）。"""
+    if not required_capabilities:
+        return []
+    candidates = [m for m in (_server_default_llm(), _server_default_embedding()) if m is not None]
+    if not candidates:
+        return []
+    names: list[str] = []
+    for capability in required_capabilities:
+        matched = next(
+            (m for m in candidates if (m.capabilities or {}).get(capability) == "supported"),
+            None,
+        )
+        if matched is None:
+            return []
+        if matched.model not in names:
+            names.append(matched.model)
+    return names
+
+
 def _server_default_llm():
     """服务器默认文本生成模型（.env 配置，访客无自有模型时回退）。"""
+    if not _server_defaults_enabled():
+        return None
     if not (settings.default_llm_model and settings.default_llm_api_key):
         return None
     provider = settings.default_llm_provider or "deepseek"
@@ -204,6 +238,8 @@ def _server_default_llm():
 
 def _server_default_embedding():
     """服务器默认 Embedding 模型（.env 配置，访客无自有模型时回退）。"""
+    if not _server_defaults_enabled():
+        return None
     if not (settings.default_embedding_model and settings.default_embedding_api_key):
         return None
     provider = settings.default_embedding_provider or "custom"

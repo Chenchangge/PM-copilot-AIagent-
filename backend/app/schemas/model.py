@@ -58,4 +58,6 @@ class ResolveRequest(BaseModel):
 
 class ResolveResult(BaseModel):
     models: list[ModelConfigOut] = Field(default_factory=list)
+    using_server_default: bool = False
+    server_default_models: list[str] = Field(default_factory=list)
     message: str | None = None

@@ -140,6 +140,14 @@ onMounted(load)
     <div class="px-5 py-4">
       <p class="text-xs text-gray-400">使用你自己的 API Key 连接 AI 模型，模型调用费用由对应服务商收取。</p>
 
+      <div class="mt-4 rounded-2xl bg-brand-50 p-4 text-xs leading-relaxed text-brand-700">
+        <p class="font-medium">知识问答需要 2 个模型：文本生成 + Embedding</p>
+        <p class="mt-1 text-brand-600">
+          文本生成负责回答，Embedding 负责检索。DeepSeek 不支持 Embedding，
+          请另外配置 DashScope / OpenAI 兼容的 embedding 模型。
+        </p>
+      </div>
+
       <!-- 我的模型 -->
       <section class="mt-6">
         <SectionTitle title="我的模型">
@@ -159,7 +167,7 @@ onMounted(load)
           <EmptyState
             v-else-if="!models.length"
             title="还没有配置 AI 模型"
-            description="使用 AI 功能前，请先配置自己的模型 API。"
+            description="使用 AI 功能前，可配置自己的模型 API；若服务器已开启演示默认模型，也可直接体验。"
           >
             <template #action>
               <PrimaryButton @click="openAdd">添加第一个模型</PrimaryButton>
