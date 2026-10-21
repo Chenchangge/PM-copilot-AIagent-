@@ -5,6 +5,11 @@ export function getLearningTaxonomy() {
   return http.get('/learning/taxonomy')
 }
 
+// 学习计划页专用：scope=plan 只下发路径卡 / 精简分类 / 分组专题，不含 640 个标签。
+export function getPlanTaxonomy(params = {}) {
+  return http.get('/learning/taxonomy', { params: { scope: 'plan', ...params } })
+}
+
 export function estimatePlan(data) {
   return http.post('/learning/plans/estimate', data)
 }

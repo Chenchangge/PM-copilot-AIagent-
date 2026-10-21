@@ -128,7 +128,15 @@ TARGET_TYPE_CATEGORY = "category"
 TARGET_TYPE_TOPIC = "topic"
 TARGET_TYPE_TAG = "tag"
 TARGET_TYPE_DIRECTION = "direction"
-TARGET_TYPES = [TARGET_TYPE_CATEGORY, TARGET_TYPE_TOPIC, TARGET_TYPE_TAG, TARGET_TYPE_DIRECTION]
+# 路径（LEARNING_PATHS）作为整体目标落库时使用；仅由 path_id 入口产生，不对外暴露为普通目标类型。
+TARGET_TYPE_PATH = "path"
+TARGET_TYPES = [
+    TARGET_TYPE_CATEGORY,
+    TARGET_TYPE_TOPIC,
+    TARGET_TYPE_TAG,
+    TARGET_TYPE_DIRECTION,
+    TARGET_TYPE_PATH,
+]
 
 # ---- 方向 → 相关一级分类（Direction 作为方向型学习目标时解析范围）----
 # 列表顺序即优先级：首项为该方向的「标志性」分类（用于阶段模拟面试类型推荐）。
@@ -145,6 +153,21 @@ DAILY_MINUTES_OPTIONS = [15, 30, 45, 60]
 INTENSITIES = ["轻量", "标准", "高强度"]
 # 手动可选学习周期（天）
 DAY_CHOICES = [5, 7, 10, 14]
+
+# ---- 当前水平 → 允许的知识点难度（累积式：越高阶覆盖越多）----
+# 入门用户先从「入门 + 基础」开始；「基础」再放开进阶；「进阶」放开全部。
+# 这样既满足「当前水平真实影响知识点数量」，也不会让入门用户直接看到高级内容。
+LEVEL_DIFFICULTIES = {
+    "入门": {"入门", "基础"},
+    "基础": {"入门", "基础", "进阶"},
+    "进阶": set(DIFFICULTIES),
+}
+
+# ---- 学习强度 → 有效每日学习量系数（真正参与排课）----
+# 轻量 = 每日时长 × 0.7；标准 = × 1.0；高强度 = × 1.3。
+# 折算后向上取整到 5 分钟粒度，避免出现 21/39 分钟这类不可执行的日任务量。
+INTENSITY_FACTORS = {"轻量": 0.7, "标准": 1.0, "高强度": 1.3}
+MIN_DAILY_MINUTES = 5
 
 # ---- 计划 / Day / Task / Record 状态 ----
 PLAN_DRAFT = "draft"
@@ -183,3 +206,50 @@ LEGACY_CATEGORY_LABELS = {
     "tools": "工具",
     "interview": "面试与求职",
 }
+
+# ---- 学习路径（P0-1：把「内容分类」入口改成「学习目标」入口）----
+# 只做目标聚合，不新造知识点：target_type + target_ids 用现有 resolve_target 解析。
+# days_hint 是产品定义的建议冲刺周期；实际天数仍由后端按当前水平/每日时长/强度计算。
+LEARNING_PATHS = [
+    {
+        "id": "ai-pm-sprint",
+        "name": "AI 产品经理 · 面试速成",
+        "subtitle": "大模型 · RAG · AI 工程核心知识",
+        "target_type": TARGET_TYPE_TOPIC,
+        "target_ids": ["llm-basics", "rag-retrieval", "ai-engineering"],
+        "days_hint": 14,
+        "direction": "AI产品经理",
+        "interview_types": ["AI产品"],
+    },
+    {
+        "id": "product-foundation-track",
+        "name": "产品基础 · 系统打底",
+        "subtitle": "产品基础 + 需求 + 设计",
+        "target_type": TARGET_TYPE_CATEGORY,
+        "target_ids": ["product-foundation", "product-design", "user-research"],
+        "days_hint": 21,
+        "direction": "C端产品经理",
+        "interview_types": ["产品基础", "需求分析", "产品设计", "用户研究"],
+    },
+    {
+        "id": "interview-sprint",
+        "name": "面试冲刺",
+        "subtitle": "面试与求职 + 答题框架",
+        "target_type": TARGET_TYPE_CATEGORY,
+        "target_ids": ["interview-job"],
+        "days_hint": 7,
+        "direction": None,
+        "interview_types": ["行为面试"],
+    },
+]
+LEARNING_PATHS_BY_ID = {p["id"]: p for p in LEARNING_PATHS}
+
+# 学习计划首屏只露 5 个分类；其余折叠到「更多分类」。
+# 顺序按产品相关性固定，不按知识点数量排序（AI产品数量最多但不该排第一）。
+PLAN_FEATURED_CATEGORIES = [
+    "product-foundation",
+    "data-analysis",
+    "ai-product",
+    "user-research",
+    "interview-job",
+]

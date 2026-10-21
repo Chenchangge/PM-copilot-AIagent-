@@ -2,11 +2,18 @@
 
 Route 保持薄层：HTTP → LearningService → HTTP。
 """
-from fastapi import APIRouter, Depends
+from typing import Literal
+
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.api.routes.models import get_user_id
 from app.db.database import get_db
+from app.learning.constants import (
+    CURRENT_LEVELS,
+    DAILY_MINUTES_OPTIONS,
+    INTENSITIES,
+)
 from app.learning.service import LearningService
 from app.schemas.learning import (
     CreatePlanRequest,
@@ -15,6 +22,7 @@ from app.schemas.learning import (
     HomeSummaryOut,
     PlanDetailOut,
     PlanListResponse,
+    PlanTaxonomyOut,
     TaxonomyOut,
     TaskOut,
     UpdatePlanRequest,
@@ -23,9 +31,30 @@ from app.schemas.learning import (
 router = APIRouter()
 
 
-@router.get("/taxonomy", response_model=TaxonomyOut)
-def get_taxonomy(db: Session = Depends(get_db)) -> TaxonomyOut:
-    return LearningService(db).get_taxonomy()
+@router.get("/taxonomy", response_model=None)
+def get_taxonomy(
+    scope: Literal["default", "plan"] = "default",
+    current_level: str = "基础",
+    daily_minutes: int = 30,
+    intensity: str = "标准",
+    user_id: str = Depends(get_user_id),
+    db: Session = Depends(get_db),
+) -> TaxonomyOut | PlanTaxonomyOut:
+    """分类体系。
+
+    - 不带 scope：保持旧行为（11 分类 / 22 专题 / 全量 tags），兼容知识库页；
+    - scope=plan：学习计划页专用精简结构，不返回 640 个 tags。
+    """
+    if scope == "default":
+        return LearningService(db).get_taxonomy()
+
+    if current_level not in CURRENT_LEVELS:
+        raise HTTPException(status_code=422, detail=f"非法的当前水平：{current_level}")
+    if daily_minutes not in DAILY_MINUTES_OPTIONS:
+        raise HTTPException(status_code=422, detail=f"非法的每日学习时间：{daily_minutes}")
+    if intensity not in INTENSITIES:
+        raise HTTPException(status_code=422, detail=f"非法的学习强度：{intensity}")
+    return LearningService(db).get_plan_taxonomy(user_id, current_level, daily_minutes, intensity)
 
 
 @router.get("/home-summary", response_model=HomeSummaryOut)

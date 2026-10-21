@@ -9,29 +9,40 @@
 """
 from __future__ import annotations
 
+import json
+import math
+from collections import Counter
+from functools import lru_cache
+
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
+from app.core.config import PROJECT_ROOT
 from app.learning.constants import (
     CATEGORY_INTERVIEW_TYPES,
     CATEGORY_NAMES,
     CURRENT_LEVELS,
     DAILY_MINUTES_OPTIONS,
     DAY_CHOICES,
+    DIFFICULTIES,
     DIRECTION_CATEGORIES,
     DIRECTIONS,
     INTENSITIES,
     INTERVIEW_RECOMMEND_RATIO,
     KNOWLEDGE_CATEGORIES,
     KNOWLEDGE_TOPICS,
+    LEARNING_PATHS,
+    LEARNING_PATHS_BY_ID,
     LEGACY_CATEGORY_LABELS,
     PLAN_ACTIVE,
     PLAN_COMPLETED,
+    PLAN_FEATURED_CATEGORIES,
     PLAN_PAUSED,
     RECORD_COMPLETED,
     RECORD_STARTED,
     TARGET_TYPE_CATEGORY,
     TARGET_TYPE_DIRECTION,
+    TARGET_TYPE_PATH,
     TARGET_TYPE_TAG,
     TARGET_TYPE_TOPIC,
     TASK_COMPLETED,
@@ -41,14 +52,22 @@ from app.learning.constants import (
     TOPIC_NAMES,
 )
 from app.learning.errors import LearningError, LearningErrorCode
-from app.learning.knowledge_index import KnowledgePointView, build_knowledge_index, resolve_target
+from app.learning.knowledge_index import (
+    KnowledgePointView,
+    build_knowledge_index,
+    resolve_path,
+    resolve_target,
+)
 from app.learning.planner import (
     compute_recommended_days,
     compute_total_minutes,
     distribute,
+    effective_daily_minutes,
+    filter_by_level,
     filter_recommendable,
     schedule_points,
 )
+from app.models.interview import InterviewEvaluation
 from app.models.learning import KnowledgeLearningRecord, LearningPlan, LearningPlanDay, LearningPlanTask
 from app.schemas.learning import (
     CategoryOut,
@@ -57,9 +76,13 @@ from app.schemas.learning import (
     EstimateRequest,
     EstimateResult,
     HomeSummaryOut,
+    PlanCategoryOut,
     PlanDetailOut,
     PlanListItem,
     PlanListResponse,
+    PlanPathOut,
+    PlanTaxonomyOut,
+    PlanTopicOut,
     PrerequisiteInfo,
     RecommendedInterview,
     TargetInfo,
@@ -69,6 +92,31 @@ from app.schemas.learning import (
     TopicOut,
     UpdatePlanRequest,
 )
+
+QUESTIONS_FILE = PROJECT_ROOT / "interview" / "data" / "questions.json"
+
+
+@lru_cache(maxsize=1)
+def _question_type_counts() -> dict[str, int]:
+    """题库 type → 题数（路径卡「高频题 N 道」用）。题库静态，进程内缓存。"""
+    try:
+        data = json.loads(QUESTIONS_FILE.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return {}
+    if not isinstance(data, list):
+        return {}
+    return dict(Counter(q.get("type") for q in data if isinstance(q, dict) and q.get("type")))
+
+
+def _difficulty_counts(points: list[KnowledgePointView]) -> dict[str, int]:
+    counts = Counter(p.difficulty for p in points)
+    return {d: counts[d] for d in DIFFICULTIES if counts.get(d)}
+
+
+def _question_count(interview_types: list[str]) -> int:
+    counts = _question_type_counts()
+    return sum(counts.get(t, 0) for t in interview_types)
+
 
 _INDEX: dict[str, KnowledgePointView] | None = None
 
@@ -100,7 +148,11 @@ class LearningService:
 
     # ================= 分类体系 =================
     def get_taxonomy(self) -> TaxonomyOut:
-        """返回最终 taxonomy（11 分类 → 18 二级主题 → Tag），供学习计划目标选择。"""
+        """返回最终 taxonomy（11 分类 → 22 二级主题 → Tag），供学习计划目标选择。
+
+        兼容路径：不带 scope 时保持原行为（知识库页 / 旧调用方仍可拿到全量 tags）。
+        计划页请使用 get_plan_taxonomy()，不会收到 640 个标签。
+        """
         categories = [CategoryOut(id=slug, name=name) for slug, name in KNOWLEDGE_CATEGORIES]
         topics = [
             TopicOut(id=slug, name=name, category_id=category_slug)
@@ -118,11 +170,141 @@ class LearningService:
             day_choices=list(DAY_CHOICES),
         )
 
+    def get_plan_taxonomy(
+        self,
+        user_id: str,
+        current_level: str,
+        daily_minutes: int,
+        intensity: str,
+    ) -> PlanTaxonomyOut:
+        """学习计划页专用精简 taxonomy（P0-1）。
+
+        - 3 张路径卡：天数/知识点数/题数全部由后端按当前水平、每日时长、强度计算；
+        - 分类 11 个，其中 5 个 featured；专题按分类分组下发（不扁平）；
+        - 不下发 tags 全量，只返回最近一次面试评价导出的 ≤3 个薄弱标签。
+        """
+        paths = [
+            self._path_card(path, current_level, daily_minutes, intensity)
+            for path in LEARNING_PATHS
+        ]
+
+        category_rows: list[PlanCategoryOut] = []
+        topics_by_category: dict[str, list[PlanTopicOut]] = {}
+        for category_slug, category_name in KNOWLEDGE_CATEGORIES:
+            points = filter_by_level(
+                filter_recommendable(resolve_target(self.index, TARGET_TYPE_CATEGORY, category_slug)),
+                current_level,
+            )
+            topic_rows: list[PlanTopicOut] = []
+            for topic_category, topic_slug, topic_name in KNOWLEDGE_TOPICS:
+                if topic_category != category_slug:
+                    continue
+                topic_points = filter_by_level(
+                    filter_recommendable(resolve_target(self.index, TARGET_TYPE_TOPIC, topic_slug)),
+                    current_level,
+                )
+                topic_rows.append(
+                    PlanTopicOut(
+                        id=topic_slug,
+                        name=topic_name,
+                        category_id=category_slug,
+                        knowledge_count=len(topic_points),
+                    )
+                )
+            topics_by_category[category_slug] = topic_rows
+            category_rows.append(
+                PlanCategoryOut(
+                    id=category_slug,
+                    name=category_name,
+                    knowledge_count=len(points),
+                    topic_count=len(topic_rows),
+                    featured=category_slug in PLAN_FEATURED_CATEGORIES,
+                )
+            )
+
+        # featured 按产品定义顺序，其余按知识点数量降序（数量相同时保持分类定义顺序）。
+        order = {slug: i for i, slug in enumerate(PLAN_FEATURED_CATEGORIES)}
+        category_rows.sort(
+            key=lambda c: (
+                0 if c.featured else 1,
+                order.get(c.id, 999) if c.featured else -c.knowledge_count,
+            )
+        )
+
+        return PlanTaxonomyOut(
+            paths=paths,
+            categories=category_rows,
+            topics=topics_by_category,
+            directions=list(DIRECTIONS),
+            levels=list(CURRENT_LEVELS),
+            daily_minutes=list(DAILY_MINUTES_OPTIONS),
+            intensities=list(INTENSITIES),
+            recommended_tags=self._recommended_tags(user_id),
+            current_level=current_level,
+            selected_daily_minutes=daily_minutes,
+            selected_intensity=intensity,
+        )
+
+    def _path_card(
+        self,
+        path: dict,
+        current_level: str,
+        daily_minutes: int,
+        intensity: str,
+    ) -> PlanPathOut:
+        points = self._path_points(path, current_level)
+        total_minutes = compute_total_minutes(points)
+        effective = effective_daily_minutes(daily_minutes, intensity)
+        days = self._path_days(path, points, total_minutes, effective)
+        return PlanPathOut(
+            id=path["id"],
+            name=path["name"],
+            subtitle=path["subtitle"],
+            days=days,
+            target_days=path["days_hint"],
+            knowledge_count=len(points),
+            question_count=_question_count(path.get("interview_types", [])),
+            effective_daily_minutes=effective,
+            difficulty_counts=_difficulty_counts(points),
+            target_type=path["target_type"],
+            target_ids=list(path["target_ids"]),
+        )
+
+    def _path_points(self, path: dict, current_level: str) -> list[KnowledgePointView]:
+        points = filter_recommendable(resolve_path(self.index, path))
+        return filter_by_level(points, current_level)
+
+    @staticmethod
+    def _path_days(
+        path: dict,
+        points: list[KnowledgePointView],
+        total_minutes: int,
+        effective_minutes: int,
+    ) -> int:
+        """路径实际天数：不短于建议冲刺周期，也不长于知识点数量（每天至少 1 个任务）。
+
+        - 入门档知识点变少时，用 min(days_hint, 知识点数) 兜底，避免空 Day；
+        - 每日时长很低（如 15 分钟）时，required 可能大于知识点数，再按知识点数封顶，
+          否则会出现「本日暂无任务」的 Day（P2-1 的同类问题）。
+        """
+        if not points:
+            return 0
+        required = compute_recommended_days(total_minutes, effective_minutes)
+        target = min(path["days_hint"], len(points))
+        return min(len(points), max(required, target))
+
     # ================= estimate =================
     def estimate(self, user_id: str, req: EstimateRequest) -> EstimateResult:
-        ordered, target_name = self._resolve_ordered(req)
+        ordered, target_name, path = self._resolve_ordered(req)
         total_minutes = compute_total_minutes(ordered)
-        recommended_days = compute_recommended_days(total_minutes, req.daily_minutes)
+        effective_minutes = effective_daily_minutes(req.daily_minutes, req.intensity)
+        if path is not None:
+            recommended_days = self._path_days(path, ordered, total_minutes, effective_minutes)
+        else:
+            # 天数不能超过知识点数，否则最后几天必然空（每天至少 1 个任务）。
+            recommended_days = min(
+                compute_recommended_days(total_minutes, effective_minutes), len(ordered)
+            )
 
         key_topics = [p.title for p in ordered[:6]]
         explanation = self._ai_explain(
@@ -132,20 +314,34 @@ class LearningService:
                 "knowledge_count": len(ordered),
                 "total_minutes": total_minutes,
                 "daily_minutes": req.daily_minutes,
+                "effective_minutes": effective_minutes,
+                "intensity": req.intensity,
                 "recommended_days": recommended_days,
                 "current_level": req.current_level,
                 "direction": req.direction_id,
                 "key_topics": key_topics,
             },
         )
-        day_choices = sorted(set([recommended_days] + list(DAY_CHOICES)))
+        # 可选天数不超过知识点数：否则必然出现「本日暂无任务」的空 Day。
+        day_choices = sorted(
+            {d for d in [recommended_days] + list(DAY_CHOICES) if d <= len(ordered)}
+        )
 
         return EstimateResult(
-            target=TargetInfo(type=req.target_type, id=req.target_id, name=target_name),
+            target=TargetInfo(
+                type=TARGET_TYPE_PATH if path is not None else req.target_type,
+                id=path["id"] if path is not None else req.target_id,
+                name=target_name,
+            ),
+            path_id=path["id"] if path is not None else None,
+            target_days=path["days_hint"] if path is not None else None,
             knowledge_count=len(ordered),
             total_minutes=total_minutes,
             recommended_days=recommended_days,
             recommended_daily_minutes=req.daily_minutes,
+            effective_daily_minutes=effective_minutes,
+            recommended_tasks_per_day=max(1, math.ceil(len(ordered) / recommended_days)),
+            difficulty_counts=_difficulty_counts(ordered),
             key_topics=key_topics,
             prerequisites=self._prerequisites(ordered),
             explanation=explanation,
@@ -154,20 +350,31 @@ class LearningService:
 
     # ================= 创建 / 查询计划 =================
     def create_plan(self, user_id: str, req: CreatePlanRequest) -> PlanDetailOut:
-        ordered, target_name = self._resolve_ordered(req)
+        ordered, target_name, path = self._resolve_ordered(req)
         total_minutes = compute_total_minutes(ordered)
-        recommended_days = compute_recommended_days(total_minutes, req.daily_minutes)
+        effective_minutes = effective_daily_minutes(req.daily_minutes, req.intensity)
+        if path is not None:
+            recommended_days = self._path_days(path, ordered, total_minutes, effective_minutes)
+        else:
+            recommended_days = min(
+                compute_recommended_days(total_minutes, effective_minutes), len(ordered)
+            )
         selected_days = req.selected_days if req.selected_days > 0 else recommended_days
 
-        days = distribute(ordered, req.daily_minutes, selected_days)
+        # 路径计划自动带上面试方向（用于完成后的模拟面试推荐）。
+        direction_id = req.direction_id or (path.get("direction") if path else None)
+        target_type = TARGET_TYPE_PATH if path is not None else req.target_type
+        target_id = path["id"] if path is not None else req.target_id
+
+        days = distribute(ordered, effective_minutes, selected_days)
 
         plan = LearningPlan(
             user_id=user_id,
-            title=req.title or self._default_title(req.target_type, target_name, req.direction_id),
-            target_type=req.target_type,
-            target_id=req.target_id,
+            title=req.title or self._default_title(target_type, target_name, direction_id),
+            target_type=target_type,
+            target_id=target_id,
             target_name=target_name,
-            direction_id=req.direction_id,
+            direction_id=direction_id,
             current_level=req.current_level,
             daily_minutes=req.daily_minutes,
             intensity=req.intensity,
@@ -247,7 +454,8 @@ class LearningService:
             plan.intensity = req.intensity
         plan.daily_minutes = new_daily
         plan.selected_days = new_days
-        self._reschedule_remaining(plan, new_daily, new_days)
+        effective_minutes = effective_daily_minutes(new_daily, plan.intensity)
+        self._reschedule_remaining(plan, effective_minutes, new_days)
         self._recompute_plan(plan)
         self.db.commit()
         self.db.refresh(plan)
@@ -353,17 +561,38 @@ class LearningService:
         )
 
     # ================= 内部：目标解析 =================
-    def _resolve_ordered(self, req) -> tuple[list[KnowledgePointView], str]:
-        target_name = self._target_name(req.target_type, req.target_id)
-        points = filter_recommendable(resolve_target(self.index, req.target_type, req.target_id))
+    def _resolve_ordered(self, req) -> tuple[list[KnowledgePointView], str, dict | None]:
+        """解析目标 → 按当前水平过滤 → 依赖拓扑排序。
+
+        返回 (ordered, target_name, path)。path 仅在 path_id 入口时非空。
+        """
+        path: dict | None = None
+        path_id = req.path_id or (req.target_id if req.target_type == TARGET_TYPE_PATH else None)
+        if path_id:
+            path = LEARNING_PATHS_BY_ID.get(path_id)
+            if path is None:
+                raise LearningError(
+                    LearningErrorCode.learning_target_not_found,
+                    f"学习路径不存在：{path_id}",
+                )
+            target_name = path["name"]
+            points = filter_recommendable(resolve_path(self.index, path))
+        else:
+            target_name = self._target_name(req.target_type, req.target_id)
+            points = filter_recommendable(resolve_target(self.index, req.target_type, req.target_id))
+
+        points = filter_by_level(points, req.current_level)
         if not points:
             raise LearningError(
                 LearningErrorCode.learning_target_empty,
                 f"该目标下没有可学习的内容：{target_name}",
             )
-        return schedule_points(points), target_name
+        return schedule_points(points), target_name, path
 
     def _target_name(self, target_type: str, target_id: str) -> str:
+        if target_type == TARGET_TYPE_PATH:
+            path = LEARNING_PATHS_BY_ID.get(target_id)
+            return path["name"] if path is not None else target_id
         if target_type == TARGET_TYPE_TAG:
             return target_id
         if target_type == TARGET_TYPE_DIRECTION:
@@ -373,6 +602,9 @@ class LearningService:
         return CATEGORY_NAMES.get(target_id, LEGACY_CATEGORY_LABELS.get(target_id, target_id))
 
     def _default_title(self, target_type: str, target_name: str, direction: str | None) -> str:
+        # 路径名本身已经是完整产品名，不再拼「学习计划」后缀。
+        if target_type == TARGET_TYPE_PATH:
+            return target_name
         # direction 本身作为目标时不重复加方向前缀
         if target_type == TARGET_TYPE_DIRECTION:
             return f"{target_name} 学习计划"
@@ -395,9 +627,11 @@ class LearningService:
     # ================= 内部：AI 解释（可选） =================
     def _ai_explain(self, user_id: str, ctx: dict) -> str:
         fallback = (
-            f"目标「{ctx['target_name']}」共 {ctx['knowledge_count']} 个知识点、约 "
-            f"{ctx['total_minutes']} 分钟。按每天 {ctx['daily_minutes']} 分钟，建议 "
-            f"{ctx['recommended_days']} 天完成。学习重点：{'、'.join(ctx['key_topics']) or '无'}。"
+            f"目标「{ctx['target_name']}」在「{ctx.get('current_level', '基础')}」水平下共 "
+            f"{ctx['knowledge_count']} 个知识点、约 {ctx['total_minutes']} 分钟。"
+            f"每日 {ctx['daily_minutes']} 分钟、{ctx.get('intensity', '标准')}强度，"
+            f"折算每日有效 {ctx.get('effective_minutes', ctx['daily_minutes'])} 分钟，"
+            f"建议 {ctx['recommended_days']} 天完成。"
         )
         text = self._generate_explanation(user_id, ctx)
         return (text or "").strip()[:800] if text else fallback
@@ -439,6 +673,7 @@ class LearningService:
         return (
             f"学习目标：{ctx['target_name']}；知识点数：{ctx['knowledge_count']}；"
             f"总时长：{ctx['total_minutes']} 分钟；每日：{ctx['daily_minutes']} 分钟；"
+            f"强度：{ctx.get('intensity', '标准')}；折算每日有效：{ctx.get('effective_minutes', ctx['daily_minutes'])} 分钟；"
             f"推荐周期：{ctx['recommended_days']} 天；当前水平：{ctx.get('current_level', '未指定')}；"
             f"目标方向：{ctx.get('direction') or '未指定'}；学习重点：{'、'.join(ctx.get('key_topics', []))}。"
         )
@@ -716,6 +951,38 @@ class LearningService:
             recommended_interview=self._recommended_interview(plan),
         )
 
+    def _recommended_tags(self, user_id: str) -> list[str]:
+        """从最近一次完成的面试评价里取 ≤3 个薄弱标签（不再下发全量 tag）。
+
+        优先用 recommended_knowledge（规则推荐的薄弱知识点）的第一批 tag；
+        没有评价 / 推荐知识点没有 tag 时返回空列表，页面不渲染标签入口。
+        """
+        row = self.db.execute(
+            select(InterviewEvaluation)
+            .where(
+                InterviewEvaluation.user_id == user_id,
+                InterviewEvaluation.status == "completed",
+            )
+            .order_by(InterviewEvaluation.created_at.desc(), InterviewEvaluation.id.desc())
+        ).scalars().first()
+        if row is None:
+            return []
+
+        tags: list[str] = []
+        for item in row.recommended_knowledge or []:
+            if not isinstance(item, dict):
+                continue
+            doc = self.index.get(item.get("knowledge_id", ""))
+            if doc is None:
+                continue
+            for tag in doc.tags:
+                if tag in tags:
+                    continue
+                tags.append(tag)
+                if len(tags) >= 3:
+                    return tags
+        return tags
+
     def _recommended_interview(self, plan: LearningPlan) -> RecommendedInterview | None:
         total = plan.total_knowledge_points
         if total == 0:
@@ -735,6 +1002,14 @@ class LearningService:
         )
 
     def _target_category(self, plan: LearningPlan) -> str:
+        if plan.target_type == TARGET_TYPE_PATH:
+            path = LEARNING_PATHS_BY_ID.get(plan.target_id)
+            if path is not None and path.get("target_ids"):
+                first = path["target_ids"][0]
+                if path["target_type"] == TARGET_TYPE_TOPIC:
+                    return TOPIC_CATEGORY.get(first, first)
+                return first
+            return "product-foundation"
         if plan.target_type == TARGET_TYPE_CATEGORY:
             return plan.target_id
         if plan.target_type == TARGET_TYPE_TOPIC:

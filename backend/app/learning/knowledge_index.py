@@ -144,3 +144,20 @@ def resolve_target(
         elif target_type == TARGET_TYPE_DIRECTION and p.category in direction_cats:
             out.append(p)
     return out
+
+
+def resolve_path(index: dict[str, KnowledgePointView], path: dict) -> list[KnowledgePointView]:
+    """学习路径 → 知识点集合（P0-1）。
+
+    路径只是在多个现有 target_id 上做并集，不新造数据；按 target_ids 顺序去重。
+    """
+    out: list[KnowledgePointView] = []
+    seen: set[str] = set()
+    target_type = path["target_type"]
+    for target_id in path.get("target_ids", []):
+        for point in resolve_target(index, target_type, target_id):
+            if point.id in seen:
+                continue
+            seen.add(point.id)
+            out.append(point)
+    return out
