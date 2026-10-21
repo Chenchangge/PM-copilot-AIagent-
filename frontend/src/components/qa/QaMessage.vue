@@ -1,11 +1,17 @@
 <script setup>
+import { computed } from 'vue'
+
 import QaSourceCard from './QaSourceCard.vue'
 import { sourceDetailPath } from '@/utils/knowledge'
+import { renderMarkdown } from '@/utils/markdown'
 
-defineProps({
+const props = defineProps({
   message: { type: Object, required: true },
 })
 const emit = defineEmits(['retry', 'go-models'])
+
+// 与知识详情页共用 markdown-body 样式；html:false，原始 HTML 会被转义。
+const answerHtml = computed(() => renderMarkdown(props.message.content))
 </script>
 
 <template>
@@ -47,9 +53,9 @@ const emit = defineEmits(['retry', 'go-models'])
         </div>
       </template>
 
-      <!-- 正常回答 -->
+      <!-- 正常回答：Markdown 渲染（标题 / 加粗 / 表格），复用知识详情排版 -->
       <template v-else>
-        <p class="whitespace-pre-wrap break-words text-gray-800">{{ message.content }}</p>
+        <div class="markdown-body break-words text-gray-800" v-html="answerHtml"></div>
 
         <div v-if="message.sources && message.sources.length" class="mt-3 border-t border-gray-100 pt-2.5">
           <p class="text-xs text-gray-400">参考知识</p>

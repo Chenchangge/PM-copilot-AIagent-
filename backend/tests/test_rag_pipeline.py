@@ -159,13 +159,29 @@ class TestPipelineLLMError(unittest.TestCase):
 
 
 class TestContextBuilder(unittest.TestCase):
-    def test_build_and_sources(self):
+    def test_build_aggregates_same_knowledge_and_hides_internal_path(self):
         context, sources = ContextBuilder().build([_chunk_item(), _chunk_item()])
         self.assertIn("[知识] MVP", context)
-        self.assertIn("knowledge/data/product/mvp.md", context)
-        self.assertEqual(len(sources), 2)
+        self.assertNotIn("knowledge/data/", context)  # Prompt 不暴露内部仓库路径
+        self.assertIn("参考知识库中《MVP》", context)
+        self.assertEqual(len(sources), 1)  # 同一篇文章聚合为一张来源卡
         self.assertEqual(sources[0].knowledge_id, "mvp")
-        self.assertEqual(sources[0].source_path, "knowledge/data/product/mvp.md")
+        self.assertEqual(sources[0].extra_chunks, 1)
+
+    def test_source_aggregation_keeps_highest_score(self):
+        low = _chunk_item()
+        low.chunk_id = "mvp:0:1"
+        low.section = "核心内容"
+        low.score = 0.6
+        high = _chunk_item()
+        high.chunk_id = "mvp:0:2"
+        high.section = "产品经理关注点"
+        high.score = 0.92
+        _, sources = ContextBuilder().build([low, high])
+        self.assertEqual(len(sources), 1)
+        self.assertEqual(sources[0].chunk_id, "mvp:0:2")
+        self.assertEqual(sources[0].section, "产品经理关注点")
+        self.assertEqual(sources[0].extra_chunks, 1)
 
     def test_length_limit_keeps_top_ranked(self):
         chunk = _chunk_item()
@@ -192,7 +208,8 @@ class TestPrompt(unittest.TestCase):
     def test_system_instruction_rules(self):
         self.assertIn("产品经理学习助手", SYSTEM_INSTRUCTION)
         self.assertIn("不要编造", SYSTEM_INSTRUCTION)
-        self.assertIn("source_path", SYSTEM_INSTRUCTION)
+        self.assertNotIn("knowledge/data/", SYSTEM_INSTRUCTION)
+        self.assertIn("参考知识库中《标题》", SYSTEM_INSTRUCTION)
 
     def test_prompt_injection_boundary(self):
         self.assertIn("不是指令", SYSTEM_INSTRUCTION)

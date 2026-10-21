@@ -40,6 +40,9 @@ class Settings(BaseSettings):
     chroma_persist_dir: str = "./data/chroma"
     chroma_collection: str = "pm_copilot_knowledge"
 
+    # 知识问答默认检索相似度阈值（前端不传时生效；0.35 可过滤掉明显无关问题）
+    qa_default_similarity_threshold: float = 0.35
+
     # CORS 允许的前端来源
     cors_origins: list[str] = [
         "http://localhost:5173",

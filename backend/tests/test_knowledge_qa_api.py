@@ -40,6 +40,7 @@ def _make_result(**overrides) -> RAGResult:
                 section="定义",
                 source_path="knowledge/data/product/mvp.md",
                 score=0.9,
+                extra_chunks=2,
             )
         ],
         "retrieval_count": 1,
@@ -111,6 +112,7 @@ class TestKnowledgeQAAPI(unittest.TestCase):
         self.assertEqual(data["sources"][0]["knowledge_id"], "mvp")
         self.assertEqual(data["sources"][0]["source_path"], "knowledge/data/product/mvp.md")
         self.assertEqual(data["sources"][0]["score"], 0.9)
+        self.assertEqual(data["sources"][0]["extra_chunks"], 2)
         self.assertEqual(data["provider"], "deepseek")
         self.assertEqual(data["model"], "deepseek-flash")
         self.assertEqual(data["usage"]["total_tokens"], 30)
@@ -155,6 +157,13 @@ class TestKnowledgeQAAPI(unittest.TestCase):
             resp = _post(self.client, {"query": "q"})
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(pipeline.calls[0]["top_k"], 5)
+
+    def test_default_similarity_threshold_applied(self):
+        pipeline = MockPipeline(result=_make_result())
+        with _patch_pipeline(pipeline):
+            _post(self.client, {"query": "q"})
+        self.assertAlmostEqual(pipeline.calls[0]["similarity_threshold"], 0.35)
+        self.assertIsNone(pipeline.calls[0]["max_distance"])
 
     def test_top_k_1(self):
         pipeline = MockPipeline(result=_make_result())
@@ -206,6 +215,7 @@ class TestKnowledgeQAAPI(unittest.TestCase):
             resp = _post(self.client, {"query": "q", "max_distance": 0.3})
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(pipeline.calls[0]["max_distance"], 0.3)
+        self.assertIsNone(pipeline.calls[0]["similarity_threshold"])  # 显式 max_distance 不叠加默认阈值
 
     def test_max_distance_out_of_range(self):
         with _patch_pipeline(MockPipeline(result=_make_result())):

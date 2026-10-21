@@ -59,10 +59,10 @@ Base URL: `http://localhost:8010`
 | --- | --- | --- | --- |
 | `query` | string | 是 | 用户问题，trim 后非空，≤ 2000 字符 |
 | `top_k` | int | 否 | 检索条数，1～20，默认 5 |
-| `similarity_threshold` | float \| null | 否 | cosine 相似度阈值，0.0～1.0 |
+| `similarity_threshold` | float \| null | 否 | cosine 相似度阈值，0.0～1.0；不传时使用服务端默认 `QA_DEFAULT_SIMILARITY_THRESHOLD`（默认 0.35） |
 | `max_distance` | float \| null | 否 | cosine 距离阈值，0.0～2.0 |
 
-`similarity_threshold` 与 `max_distance` 表达同一过滤概念，**不可同时传入**，否则返回 400 `RETRIEVAL_THRESHOLD_CONFLICT`。
+`similarity_threshold` 与 `max_distance` 表达同一过滤概念，**不可同时传入**，否则返回 400 `RETRIEVAL_THRESHOLD_CONFLICT`。显式传 `max_distance` 时不再叠加默认 similarity 阈值。
 
 ### Response
 
@@ -80,7 +80,8 @@ Base URL: `http://localhost:8010`
       "category": "product",
       "section": "定义",
       "source_path": "knowledge/data/product/mvp.md",
-      "score": 0.91
+      "score": 0.91,
+      "extra_chunks": 4
     }
   ],
   "retrieval_count": 1,
@@ -105,7 +106,9 @@ Base URL: `http://localhost:8010`
 
 ### Sources
 
-`sources` 由 **RAGPipeline → Retriever** 生成，**不是 LLM 自己生成的**——避免模型伪造来源。API 仅做序列化，前端无需猜测来源。`source_path` 为项目相对路径（`knowledge/data/...`），不含服务器绝对路径。
+`sources` 由 **RAGPipeline → Retriever** 生成，**不是 LLM 自己生成的**——避免模型伪造来源。API 仅做序列化，前端无需猜测来源。`source_path` 为项目相对路径（`knowledge/data/...`），不含服务器绝对路径；该字段不会进入 LLM Prompt，Prompt 统一使用「参考知识库中《标题》」。
+
+来源按 `knowledge_id` 聚合：同一篇文章只保留 `score` 最高的一段，`extra_chunks` 表示该文另有 N 段相关，前端卡片显示「该文另有 N 段相关」。
 
 ### Empty Retrieval
 

@@ -26,6 +26,7 @@ class KnowledgeQASource(BaseModel):
     section: str = ""
     source_path: str = ""
     score: float | None = None
+    extra_chunks: int = 0
 
 
 class KnowledgeQAResponse(BaseModel):
@@ -52,6 +53,7 @@ def to_qa_response(result: RAGResult) -> KnowledgeQAResponse:
                 section=s.section,
                 source_path=s.source_path,
                 score=s.score,
+                extra_chunks=s.extra_chunks,
             )
             for s in result.sources
         ],

@@ -10,9 +10,13 @@ class ContextBuilder:
         self.max_context_chars = max_context_chars
 
     def build(self, chunks: list[RetrieverItem]) -> tuple[str, list[Source]]:
-        """返回 (context 文本, sources)。超长时优先保留排名靠前的结果，不无限拼接。"""
+        """返回 (context 文本, sources)。超长时优先保留排名靠前的结果，不无限拼接。
+
+        sources 按 knowledge_id 聚合：同一篇文章只保留 score 最高的一段，
+        并记录 extra_chunks（该文另有 N 段相关）。context 仍保留全部段落供 LLM 使用。
+        """
         parts: list[str] = []
-        sources: list[Source] = []
+        raw_sources: list[Source] = []
         total = 0
         for chunk in chunks:
             if total >= self.max_context_chars:
@@ -23,7 +27,7 @@ class ContextBuilder:
                 block = block[:remaining]
             parts.append(block)
             total += len(block)
-            sources.append(
+            raw_sources.append(
                 Source(
                     knowledge_id=chunk.knowledge_id,
                     chunk_id=chunk.chunk_id,
@@ -34,13 +38,37 @@ class ContextBuilder:
                     score=chunk.score,
                 )
             )
-        return "\n\n".join(parts), sources
+        return "\n\n".join(parts), self._aggregate_sources(raw_sources)
+
+    @staticmethod
+    def _aggregate_sources(sources: list[Source]) -> list[Source]:
+        order: list[str] = []
+        best: dict[str, Source] = {}
+        counts: dict[str, int] = {}
+        for source in sources:
+            key = source.knowledge_id or source.chunk_id
+            if key not in best:
+                order.append(key)
+                best[key] = source
+                counts[key] = 0
+            counts[key] += 1
+            old_score = best[key].score if best[key].score is not None else -1.0
+            new_score = source.score if source.score is not None else -1.0
+            if new_score > old_score:
+                best[key] = source
+        aggregated: list[Source] = []
+        for key in order:
+            source = best[key]
+            source.extra_chunks = max(0, counts[key] - 1)
+            aggregated.append(source)
+        return aggregated
 
     def _format_chunk(self, chunk: RetrieverItem) -> str:
+        # 不把 knowledge/data/... 内部路径交给 LLM；引用统一用「参考知识库中《标题》」。
         return (
             f"[知识] {chunk.title}\n"
             f"分类：{chunk.category}\n"
             f"章节：{chunk.section}\n"
-            f"来源：{chunk.source_path}\n"
+            f"引用写法：参考知识库中《{chunk.title}》\n"
             f"内容：\n{chunk.content}"
         )

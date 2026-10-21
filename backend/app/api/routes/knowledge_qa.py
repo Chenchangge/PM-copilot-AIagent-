@@ -11,6 +11,7 @@ import math
 from fastapi import APIRouter, Depends
 
 from app.api.routes.models import get_user_id
+from app.core.config import settings
 from app.rag.errors import RAGError, RAGErrorCode
 from app.rag.pipeline import build_rag_pipeline
 from app.rag.retriever import MAX_QUERY_LENGTH, MAX_TOP_K
@@ -72,11 +73,15 @@ def knowledge_qa(
     user_id: str = Depends(get_user_id),
 ) -> KnowledgeQAResponse:
     query = _validate_request(request)
+    # 前端不传阈值时用服务端默认值；若显式传了 max_distance，则不叠加 similarity。
+    similarity_threshold = request.similarity_threshold
+    if similarity_threshold is None and request.max_distance is None:
+        similarity_threshold = settings.qa_default_similarity_threshold
     pipeline = build_rag_pipeline(user_id)
     result = pipeline.run(
         query=query,
         top_k=request.top_k,
-        similarity_threshold=request.similarity_threshold,
+        similarity_threshold=similarity_threshold,
         max_distance=request.max_distance,
     )
     return to_qa_response(result)

@@ -13,6 +13,7 @@ class Source:
     section: str = ""
     source_path: str = ""
     score: float | None = None
+    extra_chunks: int = 0  # 同一知识点还有多少段相关 chunk（来源按 knowledge_id 聚合）
 
 
 @dataclass

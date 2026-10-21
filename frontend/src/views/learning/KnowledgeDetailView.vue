@@ -271,42 +271,6 @@ onMounted(load)
 </template>
 
 <style scoped>
-/* 受控 Markdown 排版（markdown-it html:false 已转义原始 HTML，不执行 script） */
-.markdown-body :deep(p) {
-  margin: 0.5rem 0;
-}
-.markdown-body :deep(ul),
-.markdown-body :deep(ol) {
-  margin: 0.5rem 0;
-  padding-left: 1.25rem;
-  list-style: disc;
-}
-.markdown-body :deep(ol) {
-  list-style: decimal;
-}
-.markdown-body :deep(li) {
-  margin: 0.25rem 0;
-}
-.markdown-body :deep(pre) {
-  margin: 0.75rem 0;
-  padding: 0.75rem;
-  border-radius: 0.5rem;
-  background: #f5f5f5;
-  overflow-x: auto;
-}
-.markdown-body :deep(code) {
-  padding: 0.125rem 0.375rem;
-  border-radius: 0.25rem;
-  background: #f1f5f9;
-  font-size: 0.875em;
-}
-.markdown-body :deep(pre code) {
-  padding: 0;
-  background: transparent;
-}
-.markdown-body :deep(strong) {
-  font-weight: 600;
-}
 details[open] summary svg {
   transform: rotate(180deg);
 }
