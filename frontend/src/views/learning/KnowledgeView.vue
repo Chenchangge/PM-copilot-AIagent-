@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 
 import LearningTabs from '@/components/learning/LearningTabs.vue'
 import EmptyState from '@/components/ui/EmptyState.vue'
@@ -13,6 +13,8 @@ const error = ref('')
 const active = ref('全部')
 const topicActive = ref('全部')
 const keyword = ref('')
+const page = ref(1)
+const PAGE_SIZE = 20
 
 const categories = computed(() => {
   const present = new Set(items.value.map((k) => k.category))
@@ -47,10 +49,20 @@ const filtered = computed(() => {
   return list
 })
 
+const totalPages = computed(() => Math.max(1, Math.ceil(filtered.value.length / PAGE_SIZE)))
+const paged = computed(() =>
+  filtered.value.slice((page.value - 1) * PAGE_SIZE, page.value * PAGE_SIZE),
+)
+
 function pickCategory(label) {
   active.value = label
   topicActive.value = '全部'
+  page.value = 1
 }
+
+watch([active, topicActive, keyword], () => {
+  page.value = 1
+})
 
 async function load() {
   loading.value = true
@@ -101,7 +113,7 @@ onMounted(load)
           v-for="c in categories"
           :key="c"
           type="button"
-          class="shrink-0 rounded-full border px-4 py-1.5 text-sm transition-colors"
+          class="flex min-h-[44px] shrink-0 items-center rounded-full border px-4 text-sm transition-colors"
           :class="active === c ? 'border-brand-600 bg-brand-600 text-white' : 'border-gray-200 bg-white text-gray-600 active:bg-gray-50'"
           @click="pickCategory(c)"
         >
@@ -114,7 +126,7 @@ onMounted(load)
           v-for="t in topics"
           :key="t.id"
           type="button"
-          class="shrink-0 rounded-full border px-3 py-1 text-xs transition-colors"
+          class="flex min-h-[44px] shrink-0 items-center rounded-full border px-3 text-xs transition-colors"
           :class="topicActive === t.id ? 'border-brand-600 bg-brand-50 text-brand-700' : 'border-gray-100 bg-white text-gray-500 active:bg-gray-50'"
           @click="topicActive = t.id"
         >
@@ -123,9 +135,29 @@ onMounted(load)
       </div>
 
       <div v-if="filtered.length" class="mt-4 space-y-3">
-        <KnowledgeItem v-for="k in filtered" :key="k.id" :item="k" :to="`/learning/knowledge/${k.id}`" />
+        <KnowledgeItem v-for="k in paged" :key="k.id" :item="k" :to="`/learning/knowledge/${k.id}`" />
       </div>
       <EmptyState v-else title="没有找到相关知识" description="换个关键词或分类试试" />
+
+      <div v-if="totalPages > 1" class="mt-4 flex items-center justify-between text-xs text-gray-500">
+        <button
+          type="button"
+          class="rounded-full border border-gray-200 bg-white px-4 py-2.5 disabled:text-gray-300"
+          :disabled="page <= 1"
+          @click="page -= 1"
+        >
+          上一页
+        </button>
+        <span>第 {{ page }} / {{ totalPages }} 页</span>
+        <button
+          type="button"
+          class="rounded-full border border-gray-200 bg-white px-4 py-2.5 disabled:text-gray-300"
+          :disabled="page >= totalPages"
+          @click="page += 1"
+        >
+          下一页
+        </button>
+      </div>
     </div>
   </div>
 </template>

@@ -1,12 +1,12 @@
 ---
 id: prd
-title: prd
+title: PRD（产品需求文档）
 category: product-design
 topic: requirements-doc
 difficulty: 基础
 estimated_minutes: 20
 ---
-# prd
+# PRD（产品需求文档）
 
 ## 概述
 

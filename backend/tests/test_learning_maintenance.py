@@ -98,6 +98,11 @@ class TestLearningMaintenance(unittest.TestCase):
         self.assertEqual(day1_after["tasks"], [])
         self.assertTrue(moved_ids <= {t["id"] for t in day2_after["tasks"]})
 
+    def test_selected_days_are_trimmed_to_avoid_empty_days(self):
+        plan = self._create("trim-user", selected_days=30).json()
+        self.assertEqual(plan["selected_days"], plan["total_knowledge_points"])
+        self.assertTrue(all(d["tasks"] for d in plan["days"]))
+
     def test_crash_mode_is_capped_to_14_days(self):
         estimate = self.client.post(
             "/api/learning/plans/estimate",

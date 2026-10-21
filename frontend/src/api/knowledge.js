@@ -21,3 +21,8 @@ export function listKnowledge(params = {}) {
 export function getKnowledgeDetail(knowledgeId) {
   return http.get(`/knowledge/${knowledgeId}`)
 }
+
+// 重建知识库索引（设置页；需要已配置 Embedding 模型）。
+export function reindexKnowledge() {
+  return http.post('/knowledge/reindex', {}, { timeout: 180000 })
+}

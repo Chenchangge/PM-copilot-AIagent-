@@ -8882,5 +8882,486 @@
       "逻辑与表达",
       "需求分析"
     ]
+  },
+  {
+    "id": "competitor-analysis-goal",
+    "content": "做竞品分析前，你会先明确哪些问题？",
+    "type": "竞品分析",
+    "difficulty": "基础",
+    "directions": [
+      "C端产品经理",
+      "B端产品经理",
+      "AI产品经理",
+      "数据产品经理"
+    ],
+    "knowledge_ids": [
+      "competitor-analysis-framework",
+      "product-positioning"
+    ],
+    "knowledge_relations": [
+      {
+        "point_id": "competitor-analysis-framework",
+        "relation_type": "core"
+      },
+      {
+        "point_id": "product-positioning",
+        "relation_type": "core"
+      }
+    ],
+    "evaluation_points": [
+      "分析目的",
+      "决策问题",
+      "目标竞品",
+      "分析范围",
+      "输出对象",
+      "验证方式"
+    ],
+    "reference_answer": "我会先明确这次分析要支持什么决策，例如是否进入某个市场、是否跟进某个功能、如何做差异化定位。然后确定分析对象、范围和输出对象，避免为了分析而分析。最后明确结论如何验证。",
+    "evaluation_dimensions": [
+      "产品思维",
+      "需求分析",
+      "业务意识",
+      "逻辑与表达"
+    ]
+  },
+  {
+    "id": "competitor-feature-follow",
+    "content": "竞品上线了一个很受欢迎的新功能，你会直接跟进吗？",
+    "type": "竞品分析",
+    "difficulty": "中等",
+    "directions": [
+      "C端产品经理",
+      "B端产品经理",
+      "AI产品经理",
+      "数据产品经理"
+    ],
+    "knowledge_ids": [
+      "competitor-analysis-framework",
+      "tradeoff-in-product-design",
+      "requirement-priority"
+    ],
+    "knowledge_relations": [
+      {
+        "point_id": "competitor-analysis-framework",
+        "relation_type": "core"
+      },
+      {
+        "point_id": "tradeoff-in-product-design",
+        "relation_type": "core"
+      },
+      {
+        "point_id": "requirement-priority",
+        "relation_type": "core"
+      }
+    ],
+    "evaluation_points": [
+      "用户需求",
+      "目标用户",
+      "产品定位",
+      "投入产出",
+      "差异化",
+      "验证方式",
+      "优先级"
+    ],
+    "reference_answer": "我不会直接跟进，而是先判断这个功能服务的是哪类用户、解决什么问题，以及是否与我们的产品定位一致。然后评估投入产出、技术约束和差异化价值，再决定跟进、替代方案或不跟进。",
+    "evaluation_dimensions": [
+      "产品思维",
+      "需求分析",
+      "业务意识",
+      "逻辑与表达"
+    ]
+  },
+  {
+    "id": "competitor-feature-decomposition",
+    "content": "如何把一个竞品功能拆解成可比较的结构？",
+    "type": "竞品分析",
+    "difficulty": "基础",
+    "directions": [
+      "C端产品经理",
+      "B端产品经理",
+      "AI产品经理",
+      "数据产品经理"
+    ],
+    "knowledge_ids": [
+      "feature-decomposition",
+      "competitor-analysis-framework"
+    ],
+    "knowledge_relations": [
+      {
+        "point_id": "feature-decomposition",
+        "relation_type": "core"
+      },
+      {
+        "point_id": "competitor-analysis-framework",
+        "relation_type": "core"
+      }
+    ],
+    "evaluation_points": [
+      "用户场景",
+      "任务流程",
+      "功能结构",
+      "交互细节",
+      "数据与策略",
+      "异常与边界",
+      "结果指标"
+    ],
+    "reference_answer": "我会先还原用户场景和任务流程，再把功能拆成入口、步骤、状态、异常和结果。对于策略型功能，还会比较数据来源、规则和反馈机制。最后用一致的维度做横向对比，而不是只列功能清单。",
+    "evaluation_dimensions": [
+      "产品思维",
+      "需求分析",
+      "业务意识",
+      "逻辑与表达"
+    ]
+  },
+  {
+    "id": "competitor-ux-comparison",
+    "content": "如何比较两个竞品的用户体验？",
+    "type": "竞品分析",
+    "difficulty": "中等",
+    "directions": [
+      "C端产品经理",
+      "B端产品经理",
+      "AI产品经理",
+      "数据产品经理"
+    ],
+    "knowledge_ids": [
+      "competitor-analysis-framework",
+      "user-segmentation"
+    ],
+    "knowledge_relations": [
+      {
+        "point_id": "competitor-analysis-framework",
+        "relation_type": "core"
+      },
+      {
+        "point_id": "user-segmentation",
+        "relation_type": "core"
+      }
+    ],
+    "evaluation_points": [
+      "目标用户",
+      "核心任务",
+      "完成路径",
+      "操作成本",
+      "信息架构",
+      "异常处理",
+      "主观感受",
+      "数据证据"
+    ],
+    "reference_answer": "我会先确定目标用户和核心任务，再走完两个产品的关键路径，比较步骤、信息密度、认知成本和异常处理。除了主观体验，还会结合可用性测试、行为数据或用户反馈，避免只凭个人偏好下结论。",
+    "evaluation_dimensions": [
+      "产品思维",
+      "需求分析",
+      "业务意识",
+      "逻辑与表达"
+    ]
+  },
+  {
+    "id": "competitor-business-model",
+    "content": "如何分析一个竞品的商业模式？",
+    "type": "竞品分析",
+    "difficulty": "中等",
+    "directions": [
+      "C端产品经理",
+      "B端产品经理",
+      "AI产品经理",
+      "数据产品经理"
+    ],
+    "knowledge_ids": [
+      "business-model-canvas",
+      "product-value-and-business-value"
+    ],
+    "knowledge_relations": [
+      {
+        "point_id": "business-model-canvas",
+        "relation_type": "core"
+      },
+      {
+        "point_id": "product-value-and-business-value",
+        "relation_type": "core"
+      }
+    ],
+    "evaluation_points": [
+      "目标客户",
+      "价值主张",
+      "收入来源",
+      "成本结构",
+      "获客方式",
+      "关键资源",
+      "可持续性"
+    ],
+    "reference_answer": "我会用商业模式画布拆解目标客户、价值主张、收入来源、成本结构和获客方式，再判断它的增长是否可持续、对谁形成壁垒。最后结合我们的资源和定位，判断哪些部分值得借鉴。",
+    "evaluation_dimensions": [
+      "产品思维",
+      "需求分析",
+      "业务意识",
+      "逻辑与表达"
+    ]
+  },
+  {
+    "id": "competitor-differentiation",
+    "content": "竞品分析后，如何形成自己的差异化定位？",
+    "type": "竞品分析",
+    "difficulty": "中等",
+    "directions": [
+      "C端产品经理",
+      "B端产品经理",
+      "AI产品经理",
+      "数据产品经理"
+    ],
+    "knowledge_ids": [
+      "product-positioning",
+      "competitor-analysis-framework",
+      "user-segmentation"
+    ],
+    "knowledge_relations": [
+      {
+        "point_id": "product-positioning",
+        "relation_type": "core"
+      },
+      {
+        "point_id": "competitor-analysis-framework",
+        "relation_type": "core"
+      },
+      {
+        "point_id": "user-segmentation",
+        "relation_type": "core"
+      }
+    ],
+    "evaluation_points": [
+      "目标用户",
+      "核心场景",
+      "竞品空白",
+      "自身优势",
+      "取舍",
+      "验证方式"
+    ],
+    "reference_answer": "我会先找到目标用户在核心场景中尚未被满足的需求，再结合自身资源和能力选择切入点。差异化不是功能更多，而是明确服务谁、解决什么关键问题、放弃什么。最后用小范围验证判断定位是否成立。",
+    "evaluation_dimensions": [
+      "产品思维",
+      "需求分析",
+      "业务意识",
+      "逻辑与表达"
+    ]
+  },
+  {
+    "id": "competitor-sudden-copy",
+    "content": "竞品突然上线了和我们几乎一样的功能，你会怎么应对？",
+    "type": "竞品分析",
+    "difficulty": "困难",
+    "directions": [
+      "C端产品经理",
+      "B端产品经理",
+      "AI产品经理",
+      "数据产品经理"
+    ],
+    "knowledge_ids": [
+      "competitor-analysis-framework",
+      "product-iteration-loop",
+      "tradeoff-in-product-design"
+    ],
+    "knowledge_relations": [
+      {
+        "point_id": "competitor-analysis-framework",
+        "relation_type": "core"
+      },
+      {
+        "point_id": "product-iteration-loop",
+        "relation_type": "core"
+      },
+      {
+        "point_id": "tradeoff-in-product-design",
+        "relation_type": "core"
+      }
+    ],
+    "evaluation_points": [
+      "用户影响",
+      "数据变化",
+      "差异化",
+      "节奏",
+      "资源",
+      "沟通",
+      "验证"
+    ],
+    "reference_answer": "我会先看用户和数据是否真的受到影响，再判断这个功能是竞品的长期战略还是短期跟进。然后回到我们的用户价值和差异化，决定加速、调整或不做，并把判断和资源取舍同步给团队。",
+    "evaluation_dimensions": [
+      "产品思维",
+      "需求分析",
+      "业务意识",
+      "逻辑与表达"
+    ]
+  },
+  {
+    "id": "competitor-continuous-tracking",
+    "content": "如何持续跟踪竞品，而不是只做一次分析？",
+    "type": "竞品分析",
+    "difficulty": "基础",
+    "directions": [
+      "C端产品经理",
+      "B端产品经理",
+      "AI产品经理",
+      "数据产品经理"
+    ],
+    "knowledge_ids": [
+      "competitor-analysis-framework",
+      "product-iteration-loop"
+    ],
+    "knowledge_relations": [
+      {
+        "point_id": "competitor-analysis-framework",
+        "relation_type": "core"
+      },
+      {
+        "point_id": "product-iteration-loop",
+        "relation_type": "core"
+      }
+    ],
+    "evaluation_points": [
+      "跟踪指标",
+      "信息源",
+      "更新频率",
+      "责任人",
+      "变化分级",
+      "行动闭环"
+    ],
+    "reference_answer": "我会先确定少量关键跟踪指标和信息源，比如版本更新、用户反馈、价格和增长动作。然后设定更新频率和责任人，把变化分级，只有影响我们决策的变化才进入分析和行动闭环。",
+    "evaluation_dimensions": [
+      "产品思维",
+      "需求分析",
+      "业务意识",
+      "逻辑与表达"
+    ]
+  },
+  {
+    "id": "competitor-report",
+    "content": "如何向老板汇报一份竞品分析？",
+    "type": "竞品分析",
+    "difficulty": "中等",
+    "directions": [
+      "C端产品经理",
+      "B端产品经理",
+      "AI产品经理",
+      "数据产品经理"
+    ],
+    "knowledge_ids": [
+      "competitor-analysis-framework",
+      "decision-making"
+    ],
+    "knowledge_relations": [
+      {
+        "point_id": "competitor-analysis-framework",
+        "relation_type": "core"
+      },
+      {
+        "point_id": "decision-making",
+        "relation_type": "core"
+      }
+    ],
+    "evaluation_points": [
+      "结论先行",
+      "决策问题",
+      "关键证据",
+      "对比维度",
+      "风险",
+      "建议动作",
+      "验证方式"
+    ],
+    "reference_answer": "我会结论先行，先回答老板关心的决策问题，再用关键证据支撑。对比只保留影响决策的维度，并明确风险和建议动作。最后说明结论的置信度和后续验证方式，避免把信息堆砌当成分析。",
+    "evaluation_dimensions": [
+      "产品思维",
+      "需求分析",
+      "业务意识",
+      "逻辑与表达"
+    ]
+  },
+  {
+    "id": "behavioral-persuasion",
+    "content": "讲一次你说服团队接受不同方案的经历。",
+    "type": "行为面试",
+    "difficulty": "中等",
+    "directions": [
+      "C端产品经理",
+      "B端产品经理",
+      "AI产品经理",
+      "数据产品经理"
+    ],
+    "knowledge_ids": [
+      "cross-functional-collaboration",
+      "stakeholder-analysis",
+      "decision-making"
+    ],
+    "knowledge_relations": [
+      {
+        "point_id": "cross-functional-collaboration",
+        "relation_type": "core"
+      },
+      {
+        "point_id": "stakeholder-analysis",
+        "relation_type": "core"
+      },
+      {
+        "point_id": "decision-making",
+        "relation_type": "core"
+      }
+    ],
+    "evaluation_points": [
+      "背景",
+      "分歧",
+      "各方目标",
+      "证据",
+      "沟通方式",
+      "决策",
+      "结果",
+      "复盘"
+    ],
+    "reference_answer": "我会先说明当时的背景和分歧，再分析各方真正关注的目标和约束。然后用量化证据或小范围实验支撑方案，而不是只讲个人判断。最后说明如何形成决策、结果如何，以及我从中复盘到什么。",
+    "evaluation_dimensions": [
+      "产品思维",
+      "需求分析",
+      "业务意识",
+      "逻辑与表达"
+    ]
+  },
+  {
+    "id": "behavioral-ownership",
+    "content": "讲一次你主动承担超出职责范围任务的经历。",
+    "type": "行为面试",
+    "difficulty": "基础",
+    "directions": [
+      "C端产品经理",
+      "B端产品经理",
+      "AI产品经理",
+      "数据产品经理"
+    ],
+    "knowledge_ids": [
+      "project-retrospective",
+      "cross-functional-collaboration"
+    ],
+    "knowledge_relations": [
+      {
+        "point_id": "project-retrospective",
+        "relation_type": "core"
+      },
+      {
+        "point_id": "cross-functional-collaboration",
+        "relation_type": "core"
+      }
+    ],
+    "evaluation_points": [
+      "背景",
+      "为什么主动承担",
+      "边界",
+      "行动",
+      "协作",
+      "结果",
+      "复盘"
+    ],
+    "reference_answer": "我会说明为什么这件事值得主动承担，以及我如何和原有负责人划清边界、避免重复劳动。然后说明具体行动和协作方式，最后给出结果和复盘，重点体现 owner 意识而不是抢功。",
+    "evaluation_dimensions": [
+      "产品思维",
+      "需求分析",
+      "业务意识",
+      "逻辑与表达"
+    ]
   }
 ]

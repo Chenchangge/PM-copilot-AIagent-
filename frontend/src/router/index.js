@@ -86,6 +86,12 @@ const routes = [
     component: () => import('@/views/profile/AiModelsView.vue'),
     meta: { title: 'AI 模型 / API' },
   },
+  {
+    path: '/:pathMatch(.*)*',
+    name: 'not-found',
+    component: () => import('@/views/NotFoundView.vue'),
+    meta: { title: '页面不存在', tab: false },
+  },
 ]
 
 const router = createRouter({
@@ -96,8 +102,21 @@ const router = createRouter({
   },
 })
 
+const CHUNK_RELOAD_KEY = 'pm-copilot-chunk-reload'
+
+router.onError((error) => {
+  const message = String(error?.message || '')
+  if (!/Failed to fetch dynamically imported module|Importing a module script failed|error loading dynamically imported module/i.test(message)) {
+    return
+  }
+  if (sessionStorage.getItem(CHUNK_RELOAD_KEY)) return
+  sessionStorage.setItem(CHUNK_RELOAD_KEY, '1')
+  window.location.reload()
+})
+
 router.afterEach((to) => {
   document.title = to.meta.title ? `${to.meta.title} · PM Copilot` : 'PM Copilot'
+  sessionStorage.removeItem(CHUNK_RELOAD_KEY)
 })
 
 export default router

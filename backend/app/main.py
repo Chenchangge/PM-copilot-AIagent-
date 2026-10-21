@@ -2,9 +2,15 @@
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.error_handlers import interview_error_handler, learning_error_handler, rag_error_handler
+from app.api.error_handlers import (
+    interview_error_handler,
+    learning_error_handler,
+    rag_error_handler,
+    validation_error_handler,
+)
 from app.api.routes import health, interview, knowledge, knowledge_qa, learning, models, profile
 from app.core.config import settings
 from app.db.database import init_db
@@ -32,6 +38,7 @@ app.add_middleware(
 app.add_exception_handler(RAGError, rag_error_handler)
 app.add_exception_handler(InterviewError, interview_error_handler)
 app.add_exception_handler(LearningError, learning_error_handler)
+app.add_exception_handler(RequestValidationError, validation_error_handler)
 
 app.include_router(health.router, prefix="/api")
 app.include_router(knowledge.router, prefix="/api/knowledge", tags=["knowledge"])

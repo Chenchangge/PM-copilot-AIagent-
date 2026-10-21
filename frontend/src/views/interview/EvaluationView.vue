@@ -148,6 +148,13 @@ onMounted(load)
         </button>
         <button
           type="button"
+          class="rounded-2xl bg-brand-600 px-5 py-3 text-sm font-medium text-white active:bg-brand-700"
+          @click="generate"
+        >
+          重新生成
+        </button>
+        <button
+          type="button"
           class="rounded-2xl border border-gray-200 px-5 py-3 text-sm text-gray-600 active:bg-gray-50"
           @click="router.push('/interview/setup')"
         >

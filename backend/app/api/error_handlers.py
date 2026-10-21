@@ -4,6 +4,7 @@
 绝不泄漏 API Key / traceback / 服务器内部路径。
 """
 from fastapi import Request
+from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
 from app.core.errors import AIErrorCode
@@ -86,3 +87,20 @@ def learning_error_handler(_: Request, exc: LearningError) -> JSONResponse:
     code = _code_str(exc.code)
     status = _STATUS_BY_CODE.get(code, 500)
     return JSONResponse(status_code=status, content={"error": {"code": code, "message": exc.message}})
+
+
+def validation_error_handler(_: Request, exc: RequestValidationError) -> JSONResponse:
+    """FastAPI 422 统一成 {error: {code, message}}，与业务错误同一格式。"""
+    errors = exc.errors()
+    if errors:
+        first = errors[0]
+        loc = ".".join(str(part) for part in first.get("loc", []) if part != "body")
+        message = first.get("msg") or "请求参数不合法"
+        if loc:
+            message = f"{loc}: {message}"
+    else:
+        message = "请求参数不合法"
+    return JSONResponse(
+        status_code=422,
+        content={"error": {"code": "VALIDATION_ERROR", "message": message}},
+    )

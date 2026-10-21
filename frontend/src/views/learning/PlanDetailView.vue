@@ -41,6 +41,8 @@ const dayStatusLabel = { completed: '✓ 已完成', in_progress: '进行中', a
 const taskStatusLabel = { completed: '已完成', in_progress: '学习中', pending: '待学习', skipped: '已跳过' }
 
 const currentDay = computed(() => plan.value?.current_day_number)
+// 旧计划可能含空 Day（总天数大于知识点数）：折叠显示，不再出现「本日暂无任务」。
+const visibleDays = computed(() => (plan.value?.days || []).filter((d) => (d.tasks || []).length > 0))
 
 async function load() {
   loading.value = true
@@ -223,7 +225,7 @@ onMounted(load)
 
       <!-- Day 列表 -->
       <div class="mt-6 space-y-3">
-        <div v-for="day in plan.days" :key="day.id" class="card p-4">
+        <div v-for="day in visibleDays" :key="day.id" class="card p-4">
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-2">
               <span

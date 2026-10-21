@@ -82,6 +82,13 @@ class TestQuestionBank(unittest.TestCase):
         ids = [q["id"] for q in self.bank.all()]
         self.assertEqual(len(ids), len(set(ids)))
 
+    def test_each_interview_type_has_at_least_10(self):
+        from collections import Counter
+
+        counts = Counter(q["type"] for q in self.bank.all())
+        for interview_type in INTERVIEW_TYPES:
+            self.assertGreaterEqual(counts[interview_type], 10, interview_type)
+
     def test_required_fields(self):
         for q in self.bank.all():
             for f in ["id", "content", "type", "difficulty", "directions", "knowledge_ids", "evaluation_points", "reference_answer"]:
@@ -275,6 +282,12 @@ class TestInterviewService(unittest.TestCase):
         s = self.db.get(InterviewSession, sid)
         self.assertEqual(s.status, STATUS_COMPLETED)
         self.assertEqual(s.end_reason, END_REASON_MAX_MAIN)
+
+    def test_same_config_uses_history_to_avoid_repeat(self):
+        first = self.service.create_session("history-user", "AI产品经理", "中等", "AI产品").question.content
+        second = self.service.create_session("history-user", "AI产品经理", "中等", "AI产品").question.content
+        third = self.service.create_session("history-user", "AI产品经理", "中等", "AI产品").question.content
+        self.assertEqual(len({first, second, third}), 3)
 
     def test_main_questions_not_repeated(self):
         # 触发真实缺陷的场景：产品基础 + 中等 只有 3 题，需放宽难度才能凑够 5 题

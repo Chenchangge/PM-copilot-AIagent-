@@ -70,3 +70,4 @@ class KnowledgeDetail(BaseModel):
     related: list[KnowledgeLink] = Field(default_factory=list)
     cases: list[str] = Field(default_factory=list)
     related_questions: list[KnowledgeRelatedQuestion] = Field(default_factory=list)
+    learning_status: str = "idle"  # idle | started | completed（当前用户）

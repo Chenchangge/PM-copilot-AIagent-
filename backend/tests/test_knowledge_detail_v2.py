@@ -7,8 +7,9 @@ import unittest
 
 from fastapi.testclient import TestClient
 
-from app.db.database import Base, engine, init_db
+from app.db.database import Base, SessionLocal, engine, init_db
 from app.main import app
+from app.models.learning import KnowledgeLearningRecord
 from app.services.knowledge_service import KnowledgeService
 
 
@@ -86,6 +87,28 @@ class TestKnowledgeDetailAPI(unittest.TestCase):
     def test_case_doc_api(self):
         data = self.client.get("/api/knowledge/golden-set").json()
         self.assertGreaterEqual(len(data["cases"]), 1)
+
+    def test_learning_status_reflects_current_user(self):
+        db = SessionLocal()
+        try:
+            db.add(
+                KnowledgeLearningRecord(
+                    user_id="learned-user",
+                    knowledge_point_id="mvp",
+                    status="completed",
+                )
+            )
+            db.commit()
+        finally:
+            db.close()
+        learned = self.client.get(
+            "/api/knowledge/mvp", headers={"X-User-Id": "learned-user"}
+        ).json()
+        self.assertEqual(learned["learning_status"], "completed")
+        other = self.client.get(
+            "/api/knowledge/mvp", headers={"X-User-Id": "other-learn-user"}
+        ).json()
+        self.assertEqual(other["learning_status"], "idle")
 
 
 if __name__ == "__main__":

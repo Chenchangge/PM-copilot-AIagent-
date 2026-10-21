@@ -444,7 +444,7 @@ onMounted(load)
               v-for="cat in visibleCategories"
               :key="cat.id"
               type="button"
-              class="rounded-full border px-3 py-2 text-xs transition-colors"
+              class="flex min-h-[44px] items-center rounded-full border px-3 text-xs transition-colors"
               :class="
                 isCategorySelected(cat)
                   ? 'border-brand-600 bg-brand-600 text-white'
@@ -475,7 +475,7 @@ onMounted(load)
               v-for="cat in visibleCategories"
               :key="cat.id"
               type="button"
-              class="rounded-full border px-3 py-2 text-xs transition-colors"
+              class="flex min-h-[44px] items-center rounded-full border px-3 text-xs transition-colors"
               :class="
                 customCategoryId === cat.id
                   ? 'border-brand-600 bg-brand-50 text-brand-700'
@@ -509,7 +509,7 @@ onMounted(load)
                 v-for="topic in filteredTopics"
                 :key="topic.id"
                 type="button"
-                class="rounded-full border px-3 py-2 text-xs transition-colors"
+                class="flex min-h-[44px] items-center rounded-full border px-3 text-xs transition-colors"
                 :class="
                   isTopicSelected(topic)
                     ? 'border-brand-600 bg-brand-600 text-white'
@@ -533,7 +533,7 @@ onMounted(load)
               v-for="d in taxonomy.directions"
               :key="d"
               type="button"
-              class="rounded-full border px-3 py-2 text-xs transition-colors"
+              class="flex min-h-[44px] items-center rounded-full border px-3 text-xs transition-colors"
               :class="
                 isDirectionSelected(d)
                   ? 'border-brand-600 bg-brand-600 text-white'

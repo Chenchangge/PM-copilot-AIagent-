@@ -1,12 +1,12 @@
 ---
 id: business-model-canvas
-title: business-model-canvas
+title: 商业模式画布
 category: commercialization
 topic: business-model
 difficulty: 进阶
 estimated_minutes: 20
 ---
-# business-model-canvas
+# 商业模式画布
 
 ## 概述
 

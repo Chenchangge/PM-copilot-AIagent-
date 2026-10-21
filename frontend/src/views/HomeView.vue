@@ -6,6 +6,7 @@ import { getHomeSummary } from '@/api/learning'
 
 const summary = ref(null)
 const loading = ref(true)
+const error = ref('')
 
 const entries = [
   {
@@ -41,10 +42,13 @@ function taskLink(task) {
 }
 
 async function load() {
+  loading.value = true
+  error.value = ''
   try {
     summary.value = await getHomeSummary()
   } catch {
     summary.value = null
+    error.value = '首页数据加载失败，请稍后重试'
   } finally {
     loading.value = false
   }
@@ -61,9 +65,18 @@ onMounted(load)
     </div>
     <p class="mt-2 text-sm text-gray-500">AI产品经理学习与模拟面试助手</p>
 
-    <!-- 当前学习计划 -->
+    <!-- 当前学习计划：loading / error / empty 三态 -->
+    <div v-if="loading" class="card mt-6 p-5">
+      <p class="text-sm text-gray-400">正在加载学习计划…</p>
+    </div>
+
+    <div v-else-if="error" class="card mt-6 p-5">
+      <p class="text-sm text-red-500">{{ error }}</p>
+      <button type="button" class="mt-2 text-sm font-medium text-brand-600" @click="load">重试</button>
+    </div>
+
     <RouterLink
-      v-if="summary && summary.active_plan"
+      v-else-if="summary && summary.active_plan"
       :to="`/learning/plan/${summary.active_plan.id}`"
       class="card mt-6 block p-5 transition-colors hover:border-gray-200"
     >

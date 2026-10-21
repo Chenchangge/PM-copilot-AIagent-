@@ -20,6 +20,12 @@
   }
 }
 
+/* P2-14：正文/辅助文字对比度兜底。gray-400 (#9ca3af) 在浅色正文上不足 4.5:1，
+   统一提升到 gray-500；图标仍可用 gray-300。 */
+.text-gray-400 {
+  color: #6b7280 !important;
+}
+
 /* 受控 Markdown 排版：知识详情与知识问答共用（markdown-it html:false 已转义原始 HTML） */
 .markdown-body {
   overflow-wrap: anywhere;

@@ -16,6 +16,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
 from app.interview.question_bank import QuestionBank
+from app.models.learning import KnowledgeLearningRecord
 from app.models.taxonomy import QuestionKnowledge
 from app.rag.document import KnowledgeDocument
 from app.rag.errors import RAGError, RAGErrorCode
@@ -139,9 +140,15 @@ def _merge_qa(questions: list[dict], answers: list[dict]) -> list[KnowledgeInter
 
 
 class KnowledgeService:
-    def __init__(self, loader: MarkdownLoader | None = None, db: Session | None = None) -> None:
+    def __init__(
+        self,
+        loader: MarkdownLoader | None = None,
+        db: Session | None = None,
+        user_id: str | None = None,
+    ) -> None:
         self.loader = loader or MarkdownLoader()
         self.db = db
+        self.user_id = user_id
         self._db_failed = False
         self._docs: list[KnowledgeDocument] | None = None
         self._docs_by_id: dict[str, KnowledgeDocument] | None = None
@@ -176,8 +183,26 @@ class KnowledgeService:
     def get_knowledge(self, knowledge_id: str) -> KnowledgeDetail:
         for d in self._load():
             if d.id == knowledge_id:
-                return self._to_detail(d)
+                detail = self._to_detail(d)
+                detail.learning_status = self._learning_status(knowledge_id)
+                return detail
         raise RAGError(RAGErrorCode.knowledge_not_found, "知识点不存在")
+
+    def _learning_status(self, knowledge_id: str) -> str:
+        if self.db is None or not self.user_id:
+            return "idle"
+        try:
+            row = self.db.execute(
+                select(KnowledgeLearningRecord)
+                .where(
+                    KnowledgeLearningRecord.user_id == self.user_id,
+                    KnowledgeLearningRecord.knowledge_point_id == knowledge_id,
+                )
+                .order_by(KnowledgeLearningRecord.id.desc())
+            ).scalars().first()
+        except SQLAlchemyError:
+            return "idle"
+        return row.status if row is not None else "idle"
 
     def _to_detail(self, doc: KnowledgeDocument) -> KnowledgeDetail:
         section_text: dict[str, str] = {}

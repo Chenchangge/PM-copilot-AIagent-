@@ -95,7 +95,12 @@ class InterviewService:
         )
         self.db.add(session)
 
-        q = self.selector.select(direction, difficulty, interview_type, exclude_ids=set())
+        history = self._user_asked_question_ids(user_id)
+        try:
+            q = self.selector.select(direction, difficulty, interview_type, exclude_ids=history)
+        except InterviewError:
+            # 题库已被这个用户做过一轮时，允许重复，避免面试直接无法开始
+            q = self.selector.select(direction, difficulty, interview_type, exclude_ids=set())
         turn = self._new_main_turn(session, q, round_number=1)
         self.db.add(turn)
 
@@ -271,6 +276,17 @@ class InterviewService:
         rows = self.db.execute(
             select(InterviewTurn.question_id).where(
                 InterviewTurn.session_id == session.id,
+                InterviewTurn.question_id.isnot(None),
+            )
+        ).scalars().all()
+        return set(rows)
+
+    def _user_asked_question_ids(self, user_id: str) -> set[str]:
+        rows = self.db.execute(
+            select(InterviewTurn.question_id)
+            .join(InterviewSession, InterviewSession.id == InterviewTurn.session_id)
+            .where(
+                InterviewSession.user_id == user_id,
                 InterviewTurn.question_id.isnot(None),
             )
         ).scalars().all()

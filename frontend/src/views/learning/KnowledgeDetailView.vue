@@ -45,6 +45,7 @@ async function load() {
   completedPlanId.value = null
   try {
     detail.value = await getKnowledgeDetail(knowledgeId.value)
+    learningStatus.value = detail.value.learning_status || 'idle'
   } catch (e) {
     error.value = e?.response?.status === 404 ? '知识点不存在' : '加载失败，请稍后重试'
   } finally {
@@ -264,7 +265,9 @@ onMounted(load)
       </div>
 
       <div class="mt-4">
-        <PrimaryButton @click="router.push('/learning/qa')">用 AI 问问这个知识</PrimaryButton>
+        <PrimaryButton @click="router.push({ path: '/learning/qa', query: { q: `请解释「${detail.title}」` } })">
+          用 AI 问问这个知识
+        </PrimaryButton>
       </div>
     </article>
   </div>

@@ -1,6 +1,8 @@
 """主问题选择器：按 direction / difficulty / interview_type 筛选，支持合理降级。"""
 from __future__ import annotations
 
+import random
+
 from app.interview.errors import InterviewError, InterviewErrorCode
 from app.interview.question_bank import QuestionBank
 
@@ -35,7 +37,8 @@ class QuestionSelector:
             pool = self._filter(d, t, diff)
             fresh = [q for q in pool if q["id"] not in exclude_ids]
             if fresh:
-                return fresh[0]
+                # 同配置连续两次不再永远返回同一道题
+                return random.choice(fresh)
             # 该过滤组合下候选都已使用：继续放宽过滤条件，绝不返回已使用过的题
 
         raise InterviewError(

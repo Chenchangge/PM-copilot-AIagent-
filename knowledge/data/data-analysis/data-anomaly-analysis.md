@@ -1,12 +1,12 @@
 ---
 id: data-anomaly-analysis
-title: data-anomaly-analysis
+title: 数据异常分析
 category: data-analysis
 topic: analysis-methods
 difficulty: 进阶
 estimated_minutes: 20
 ---
-# data-anomaly-analysis
+# 数据异常分析
 
 ## 概述
 

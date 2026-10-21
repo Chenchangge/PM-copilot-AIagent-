@@ -418,6 +418,8 @@ class LearningService:
         selected_days = req.selected_days if req.selected_days > 0 else recommended_days
         if getattr(req, "mode", "full") == "crash":
             selected_days = min(14, selected_days)
+        # 没有足够知识点时裁剪天数，避免生成「本日暂无任务」的空 Day。
+        selected_days = max(1, min(selected_days, len(ordered)))
 
         # 路径计划自动带上面试方向（用于完成后的模拟面试推荐）。
         direction_id = req.direction_id or (path.get("direction") if path else None)

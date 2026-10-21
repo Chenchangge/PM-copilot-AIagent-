@@ -1,12 +1,13 @@
 <script setup>
-import { nextTick, ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { nextTick, onMounted, ref } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 
 import QaMessage from '@/components/qa/QaMessage.vue'
 import EmptyState from '@/components/ui/EmptyState.vue'
 import { askKnowledge } from '@/api/knowledge'
 import { errorMessageFor, needsModelConfig } from '@/utils/knowledge'
 
+const route = useRoute()
 const router = useRouter()
 
 // 首访引导：3 个高频问题，点击直接发送（保留原快捷问题能力）
@@ -113,6 +114,13 @@ function resetInputHeight() {
   const el = inputRef.value
   if (el) el.style.height = 'auto'
 }
+
+onMounted(() => {
+  const q = String(route.query.q || '').trim()
+  if (!q) return
+  input.value = q
+  nextTick(() => send(q))
+})
 </script>
 
 <template>

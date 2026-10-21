@@ -2,6 +2,7 @@
 import os
 import tempfile
 import unittest
+from unittest.mock import patch
 
 _TMP = tempfile.mkdtemp()
 os.environ["DATABASE_URL"] = f"sqlite:///{_TMP}/test.db"
@@ -50,6 +51,15 @@ class TestKnowledgeAPI(unittest.TestCase):
         resp = self.client.get("/api/knowledge/not-exist")
         self.assertEqual(resp.status_code, 404)
         self.assertEqual(resp.json()["error"]["code"], "KNOWLEDGE_NOT_FOUND")
+
+    def test_reindex_route(self):
+        with patch(
+            "app.api.routes.knowledge.rebuild_knowledge_index",
+            return_value={"documents": 226, "chunks": 1370, "embedding_model": "text-embedding-v4"},
+        ):
+            resp = self.client.post("/api/knowledge/reindex", headers={"X-User-Id": "u1"})
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.json()["documents"], 226)
 
 
 if __name__ == "__main__":

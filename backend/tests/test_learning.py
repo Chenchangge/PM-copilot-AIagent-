@@ -208,6 +208,7 @@ class TestLearningAPI(unittest.TestCase):
     def test_estimate_invalid_level(self):
         resp = self._estimate("est-invalid", current_level="高手")
         self.assertEqual(resp.status_code, 422)
+        self.assertEqual(resp.json()["error"]["code"], "VALIDATION_ERROR")
 
     # ---- create plan / days / tasks ----
     def test_create_plan(self):
