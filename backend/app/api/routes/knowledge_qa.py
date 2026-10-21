@@ -15,6 +15,7 @@ from app.core.config import settings
 from app.rag.errors import RAGError, RAGErrorCode
 from app.rag.pipeline import build_rag_pipeline
 from app.rag.retriever import MAX_QUERY_LENGTH, MAX_TOP_K
+from app.rag.smalltalk import smalltalk_answer
 from app.schemas.knowledge_qa import KnowledgeQARequest, KnowledgeQAResponse, to_qa_response
 
 router = APIRouter()
@@ -73,6 +74,10 @@ def knowledge_qa(
     user_id: str = Depends(get_user_id),
 ) -> KnowledgeQAResponse:
     query = _validate_request(request)
+    # 问候/致谢/身份类输入不检索、不要求模型配置，直接友好回答。
+    greeting = smalltalk_answer(query)
+    if greeting:
+        return KnowledgeQAResponse(query=query, answer=greeting, is_smalltalk=True)
     # 前端不传阈值时用服务端默认值；若显式传了 max_distance，则不叠加 similarity。
     similarity_threshold = request.similarity_threshold
     if similarity_threshold is None and request.max_distance is None:

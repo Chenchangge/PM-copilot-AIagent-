@@ -9,6 +9,7 @@ from app.rag.errors import RAGError, RAGErrorCode
 from app.rag.prompt import build_messages
 from app.rag.retriever import MAX_QUERY_LENGTH, Retriever
 from app.rag.schemas import RAGResult
+from app.rag.smalltalk import smalltalk_answer
 
 NO_CONTEXT_ANSWER = "当前知识库中没有找到足够相关的信息，暂时无法基于知识库回答该问题。"
 
@@ -27,6 +28,18 @@ class RAGPipeline:
         max_distance: float | None = None,
     ) -> RAGResult:
         query = self._validate_query(query)
+        greeting = smalltalk_answer(query)
+        if greeting:
+            return RAGResult(
+                query=query,
+                answer=greeting,
+                sources=[],
+                retrieval_count=0,
+                provider=self.llm_adapter.provider,
+                model=self.llm_adapter.model,
+                usage=None,
+                is_smalltalk=True,
+            )
         retrieval = self.retriever.retrieve(
             query,
             top_k=top_k,

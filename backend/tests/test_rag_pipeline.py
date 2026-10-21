@@ -121,6 +121,21 @@ class TestPipelineOrchestration(unittest.TestCase):
         self.assertIn("没有找到足够相关", result.answer)
         self.assertEqual(self.llm.call_count, 0)
 
+    def test_greeting_does_not_retrieve_or_call_llm(self):
+        pipeline = RAGPipeline(retriever=MockRetriever([_chunk_item()]), llm_adapter=self.llm)
+        result = pipeline.run("你好")
+        self.assertTrue(result.is_smalltalk)
+        self.assertEqual(result.sources, [])
+        self.assertEqual(result.retrieval_count, 0)
+        self.assertIn("PM Copilot", result.answer)
+        self.assertEqual(self.llm.call_count, 0)
+
+    def test_thanks_short_circuit(self):
+        pipeline = RAGPipeline(retriever=MockRetriever([]), llm_adapter=self.llm)
+        result = pipeline.run("谢谢")
+        self.assertTrue(result.is_smalltalk)
+        self.assertNotIn("没有找到足够相关", result.answer)
+
     def test_retriever_error_propagates(self):
         retriever = MockRetriever(error=RAGError(RAGErrorCode.index_not_found, "索引不存在"))
         pipeline = RAGPipeline(retriever=retriever, llm_adapter=self.llm)

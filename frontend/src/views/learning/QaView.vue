@@ -37,6 +37,7 @@ async function runQuery(msg) {
     msg.content = data.answer || ''
     msg.sources = data.sources || []
     msg.retrievalCount = data.retrieval_count ?? 0
+    msg.isSmalltalk = !!data.is_smalltalk
     msg.loading = false
     msg.error = null
   } catch (err) {
@@ -68,6 +69,7 @@ function send(text) {
     content: '',
     sources: [],
     retrievalCount: 0,
+    isSmalltalk: false,
     loading: true,
     error: null,
     query: q,

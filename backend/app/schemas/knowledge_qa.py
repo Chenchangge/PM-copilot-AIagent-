@@ -37,6 +37,7 @@ class KnowledgeQAResponse(BaseModel):
     provider: str | None = None
     model: str | None = None
     usage: dict | None = None
+    is_smalltalk: bool = False
 
 
 def to_qa_response(result: RAGResult) -> KnowledgeQAResponse:
@@ -61,4 +62,5 @@ def to_qa_response(result: RAGResult) -> KnowledgeQAResponse:
         provider=result.provider,
         model=result.model,
         usage=result.usage,
+        is_smalltalk=result.is_smalltalk,
     )

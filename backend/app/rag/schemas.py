@@ -25,3 +25,4 @@ class RAGResult:
     provider: str | None = None
     model: str | None = None
     usage: dict | None = None
+    is_smalltalk: bool = False

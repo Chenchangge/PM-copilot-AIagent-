@@ -69,7 +69,9 @@ const answerHtml = computed(() => renderMarkdown(props.message.content))
           </div>
         </div>
 
-        <p v-else-if="message.retrievalCount === 0" class="mt-2 text-xs text-gray-400">未找到相关知识来源</p>
+        <p v-else-if="message.retrievalCount === 0 && !message.isSmalltalk" class="mt-2 text-xs text-gray-400">
+          未找到相关知识来源
+        </p>
       </template>
     </div>
   </div>

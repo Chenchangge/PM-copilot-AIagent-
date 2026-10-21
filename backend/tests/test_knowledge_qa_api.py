@@ -158,6 +158,14 @@ class TestKnowledgeQAAPI(unittest.TestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(pipeline.calls[0]["top_k"], 5)
 
+    def test_greeting_short_circuits_without_model(self):
+        resp = _post(self.client, {"query": "你好"})
+        self.assertEqual(resp.status_code, 200)
+        data = resp.json()
+        self.assertTrue(data["is_smalltalk"])
+        self.assertEqual(data["sources"], [])
+        self.assertIn("PM Copilot", data["answer"])
+
     def test_default_similarity_threshold_applied(self):
         pipeline = MockPipeline(result=_make_result())
         with _patch_pipeline(pipeline):
