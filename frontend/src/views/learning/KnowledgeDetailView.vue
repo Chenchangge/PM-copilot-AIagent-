@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 import PageHeader from '@/components/layout/PageHeader.vue'
@@ -13,8 +13,8 @@ import { renderMarkdown } from '@/utils/markdown'
 
 const route = useRoute()
 const router = useRouter()
-const knowledgeId = route.params.id // slug，如 rag / mvp / ai-agent
-const taskId = route.query.taskId || null // 从学习计划进入时携带
+const knowledgeId = computed(() => route.params.id) // slug，如 mvp / rag-basics
+const taskId = computed(() => route.query.taskId || null) // 从学习计划进入时携带
 
 const detail = ref(null)
 const loading = ref(true)
@@ -27,11 +27,24 @@ const completedPlanId = ref(null)
 
 const coreContentHtml = computed(() => renderMarkdown(detail.value?.core_content))
 
+const RELATION_LABELS = {
+  core: '核心题',
+  related: '相关题',
+  prerequisite: '前置知识关联',
+}
+
+function relationLabel(relation) {
+  return RELATION_LABELS[relation] || '相关题'
+}
+
 async function load() {
   loading.value = true
   error.value = ''
+  learningStatus.value = 'idle'
+  learningError.value = ''
+  completedPlanId.value = null
   try {
-    detail.value = await getKnowledgeDetail(knowledgeId)
+    detail.value = await getKnowledgeDetail(knowledgeId.value)
   } catch (e) {
     error.value = e?.response?.status === 404 ? '知识点不存在' : '加载失败，请稍后重试'
   } finally {
@@ -39,13 +52,18 @@ async function load() {
   }
 }
 
+watch(
+  () => route.params.id,
+  () => load(),
+)
+
 async function start() {
   if (learningBusy.value) return
   learningBusy.value = true
   learningError.value = ''
   try {
-    if (taskId) await startTask(taskId)
-    else await startKnowledge(knowledgeId)
+    if (taskId.value) await startTask(taskId.value)
+    else await startKnowledge(knowledgeId.value)
     learningStatus.value = 'started'
   } catch (e) {
     learningError.value = extractInterviewError(e).message
@@ -59,11 +77,11 @@ async function complete() {
   learningBusy.value = true
   learningError.value = ''
   try {
-    if (taskId) {
-      const plan = await completeTask(taskId)
+    if (taskId.value) {
+      const plan = await completeTask(taskId.value)
       completedPlanId.value = plan?.id || null
     } else {
-      await completeKnowledge(knowledgeId)
+      await completeKnowledge(knowledgeId.value)
     }
     learningStatus.value = 'completed'
   } catch (e) {
@@ -93,7 +111,6 @@ onMounted(load)
         <span v-if="detail.topic" class="font-normal text-gray-500">· {{ getKnowledgeTopicLabel(detail.topic) }}</span>
         <span v-if="detail.difficulty" class="font-normal text-gray-400">· {{ getKnowledgeDifficultyLabel(detail.difficulty) }}</span>
       </div>
-      <h1 class="mt-1 text-xl font-bold leading-snug text-gray-900">{{ detail.title }}</h1>
 
       <section class="mt-6">
         <SectionTitle title="知识定义" />
@@ -103,6 +120,95 @@ onMounted(load)
       <section v-if="detail.core_content" class="mt-8">
         <SectionTitle title="核心内容" />
         <div class="markdown-body mt-2 text-sm leading-relaxed text-gray-600" v-html="coreContentHtml"></div>
+      </section>
+
+      <!-- P0-2：核心内容之后依次端出库里已有的内容 -->
+      <section v-if="detail.misconceptions.length" class="mt-8">
+        <SectionTitle title="常见误区" />
+        <ul class="mt-2 space-y-2 text-sm leading-relaxed text-gray-600">
+          <li v-for="(item, i) in detail.misconceptions" :key="i" class="flex gap-2">
+            <span class="mt-0.5 shrink-0 text-amber-500">×</span>
+            <span>{{ item }}</span>
+          </li>
+        </ul>
+      </section>
+
+      <section v-if="detail.prerequisites.length" class="mt-8">
+        <SectionTitle title="前置知识" />
+        <div class="mt-2 space-y-2">
+          <RouterLink
+            v-for="p in detail.prerequisites"
+            :key="p.id"
+            :to="`/learning/knowledge/${p.id}`"
+            class="card flex items-center justify-between gap-3 p-3.5 transition-colors hover:border-gray-200"
+          >
+            <div class="min-w-0">
+              <p class="truncate text-sm font-medium text-gray-900">{{ p.title }}</p>
+              <p class="mt-0.5 text-[11px] text-gray-400">
+                {{ getKnowledgeCategoryLabel(p.category) }}
+                <span v-if="p.topic"> · {{ getKnowledgeTopicLabel(p.topic) }}</span>
+              </p>
+            </div>
+            <svg class="h-4 w-4 shrink-0 text-gray-300" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+            </svg>
+          </RouterLink>
+        </div>
+      </section>
+
+      <section v-if="detail.related.length" class="mt-8">
+        <SectionTitle title="相关知识点" />
+        <div class="mt-2 space-y-2">
+          <RouterLink
+            v-for="p in detail.related"
+            :key="p.id"
+            :to="`/learning/knowledge/${p.id}`"
+            class="card flex items-center justify-between gap-3 p-3.5 transition-colors hover:border-gray-200"
+          >
+            <div class="min-w-0">
+              <p class="truncate text-sm font-medium text-gray-900">{{ p.title }}</p>
+              <p class="mt-0.5 text-[11px] text-gray-400">
+                {{ getKnowledgeCategoryLabel(p.category) }}
+                <span v-if="p.topic"> · {{ getKnowledgeTopicLabel(p.topic) }}</span>
+              </p>
+            </div>
+            <svg class="h-4 w-4 shrink-0 text-gray-300" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+            </svg>
+          </RouterLink>
+        </div>
+      </section>
+
+      <section v-if="detail.related_questions.length" class="mt-8">
+        <SectionTitle title="相关面试题" />
+        <div class="mt-2 space-y-2">
+          <details v-for="q in detail.related_questions" :key="q.id" class="card rounded-2xl">
+            <summary class="flex cursor-pointer list-none items-start justify-between gap-3 p-4">
+              <div class="min-w-0">
+                <p class="text-sm font-medium leading-relaxed text-gray-900">{{ q.content }}</p>
+                <div class="mt-1.5 flex flex-wrap items-center gap-1.5 text-[11px] text-gray-400">
+                  <span class="rounded-full bg-brand-50 px-2 py-0.5 font-medium text-brand-700">{{ relationLabel(q.relation) }}</span>
+                  <span v-if="q.difficulty">{{ getKnowledgeDifficultyLabel(q.difficulty) }}</span>
+                  <span v-if="q.via_title">· 来自《{{ q.via_title }}》</span>
+                </div>
+              </div>
+              <svg class="mt-0.5 h-4 w-4 shrink-0 text-gray-300 transition-transform" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+              </svg>
+            </summary>
+            <div v-if="q.reference_answer" class="border-t border-gray-100 px-4 py-3">
+              <p class="text-[11px] text-gray-400">参考答案</p>
+              <p class="mt-1 whitespace-pre-wrap text-sm leading-relaxed text-gray-600">{{ q.reference_answer }}</p>
+            </div>
+          </details>
+        </div>
+      </section>
+
+      <section v-if="detail.cases.length" class="mt-8">
+        <SectionTitle title="案例" />
+        <ul class="mt-2 space-y-2 text-sm leading-relaxed text-gray-600">
+          <li v-for="(item, i) in detail.cases" :key="i" class="rounded-xl bg-gray-50 p-3">{{ item }}</li>
+        </ul>
       </section>
 
       <section v-if="detail.common_scenarios.length" class="mt-8">

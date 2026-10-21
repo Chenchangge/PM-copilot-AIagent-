@@ -9,15 +9,24 @@
 from __future__ import annotations
 
 import re
+from functools import lru_cache
 
+from sqlalchemy import select
+from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.orm import Session
+
+from app.interview.question_bank import QuestionBank
+from app.models.taxonomy import QuestionKnowledge
 from app.rag.document import KnowledgeDocument
 from app.rag.errors import RAGError, RAGErrorCode
 from app.rag.loader import MarkdownLoader
 from app.schemas.knowledge import (
     KnowledgeDetail,
     KnowledgeInterviewQuestion,
+    KnowledgeLink,
     KnowledgeListItem,
     KnowledgeListResponse,
+    KnowledgeRelatedQuestion,
 )
 
 SECTION_RE = re.compile(r"^##\s+(.+)$", re.MULTILINE)
@@ -30,6 +39,21 @@ S_COMMON_SCENARIOS = "常见场景"
 S_PM_FOCUS = "产品经理关注点"
 S_INTERVIEW_QUESTIONS = "面试问题"
 S_REFERENCE_ANSWERS = "参考答案"
+S_MISCONCEPTIONS = "常见误区"
+S_CASES = "案例"
+MAX_RELATED_KNOWLEDGE = 5
+MAX_RELATED_QUESTIONS = 5
+
+
+@lru_cache(maxsize=1)
+def _question_map() -> dict[str, dict]:
+    """题库 id → 题目（详情页相关题的内容/难度/参考答案）。静态数据，进程内缓存。"""
+    try:
+        bank = QuestionBank()
+        bank.load()
+    except Exception:  # noqa: BLE001 - 题库缺失不应阻断知识详情
+        return {}
+    return {q["id"]: q for q in bank.all()}
 
 
 def _split_sections(content: str) -> list[tuple[str, str]]:
@@ -92,6 +116,17 @@ def _parse_answers(text: str) -> list[dict]:
     return answers
 
 
+def _question_links(question: dict, knowledge_id: str) -> bool:
+    """题目是否关联某知识点（knowledge_ids 或 knowledge_relations 任一命中）。"""
+    if knowledge_id in (question.get("knowledge_ids") or []):
+        return True
+    return any(
+        rel.get("point_id") == knowledge_id
+        for rel in (question.get("knowledge_relations") or [])
+        if isinstance(rel, dict)
+    )
+
+
 def _merge_qa(questions: list[dict], answers: list[dict]) -> list[KnowledgeInterviewQuestion]:
     """按顺序合并面试问题与参考答案；数量不一致时尽量保留数据，不报错。"""
     merged: list[KnowledgeInterviewQuestion] = []
@@ -104,14 +139,22 @@ def _merge_qa(questions: list[dict], answers: list[dict]) -> list[KnowledgeInter
 
 
 class KnowledgeService:
-    def __init__(self, loader: MarkdownLoader | None = None) -> None:
+    def __init__(self, loader: MarkdownLoader | None = None, db: Session | None = None) -> None:
         self.loader = loader or MarkdownLoader()
+        self.db = db
+        self._db_failed = False
         self._docs: list[KnowledgeDocument] | None = None
+        self._docs_by_id: dict[str, KnowledgeDocument] | None = None
 
     def _load(self) -> list[KnowledgeDocument]:
         if self._docs is None:
             self._docs = self.loader.load()
         return self._docs
+
+    def _by_id(self) -> dict[str, KnowledgeDocument]:
+        if self._docs_by_id is None:
+            self._docs_by_id = {d.id: d for d in self._load()}
+        return self._docs_by_id
 
     def list_knowledge(self, category: str | None = None, topic: str | None = None) -> KnowledgeListResponse:
         docs = self._load()
@@ -143,6 +186,8 @@ class KnowledgeService:
 
         questions = _parse_questions(section_text.get(S_INTERVIEW_QUESTIONS, ""))
         answers = _parse_answers(section_text.get(S_REFERENCE_ANSWERS, ""))
+        prerequisites = self._links(doc.dependencies)
+        related = self._related(doc)
 
         return KnowledgeDetail(
             id=doc.id,
@@ -156,4 +201,137 @@ class KnowledgeService:
             common_scenarios=_parse_bullets(section_text.get(S_COMMON_SCENARIOS, "")),
             pm_focus=_parse_bullets(section_text.get(S_PM_FOCUS, "")),
             interview_questions=_merge_qa(questions, answers),
+            misconceptions=_parse_bullets(section_text.get(S_MISCONCEPTIONS, "")),
+            prerequisites=prerequisites,
+            related=related,
+            cases=_parse_bullets(section_text.get(S_CASES, "")),
+            related_questions=self._related_questions(doc, prerequisites, related),
         )
+
+    # ================= P0-2：前置 / 相关 / 相关面试题 =================
+    def _links(self, ids: list[str]) -> list[KnowledgeLink]:
+        by_id = self._by_id()
+        out: list[KnowledgeLink] = []
+        for kid in ids:
+            doc = by_id.get(kid)
+            if doc is None:
+                continue
+            out.append(self._link(doc))
+        return out
+
+    @staticmethod
+    def _link(doc: KnowledgeDocument) -> KnowledgeLink:
+        return KnowledgeLink(
+            id=doc.id,
+            title=doc.title,
+            category=doc.category,
+            topic=doc.topic or doc.category,
+            difficulty=doc.difficulty,
+        )
+
+    def _related(self, doc: KnowledgeDocument, limit: int = MAX_RELATED_KNOWLEDGE) -> list[KnowledgeLink]:
+        """从 Markdown 现有字段推导「相关知识点」，不新造数据。
+
+        打分：共享 tag × 3 + 同 topic × 2 + 同 category × 1；排除自身与前置知识，
+        按分数取前 5。这样即使知识库没有独立的 related 表，也能给出可解释的关联。
+        """
+        dep_ids = set(doc.dependencies)
+        doc_tags = set(doc.tags)
+        scored: list[tuple[int, int, int, int, KnowledgeDocument]] = []
+        for idx, other in enumerate(self._load()):
+            if other.id == doc.id or other.id in dep_ids:
+                continue
+            shared = len(doc_tags & set(other.tags))
+            same_topic = 1 if doc.topic and other.topic == doc.topic else 0
+            same_category = 1 if other.category == doc.category else 0
+            score = shared * 3 + same_topic * 2 + same_category
+            if score <= 0:
+                continue
+            scored.append((score, shared, same_topic, idx, other))
+        scored.sort(key=lambda row: (-row[0], -row[1], -row[2], row[3]))
+        return [self._link(row[4]) for row in scored[:limit]]
+
+    def _related_questions(
+        self,
+        doc: KnowledgeDocument,
+        prerequisites: list[KnowledgeLink],
+        related: list[KnowledgeLink],
+    ) -> list[KnowledgeRelatedQuestion]:
+        """相关面试题：直接 core 优先，不足 5 条时用前置知识/相关知识关联题补齐。
+
+        数据源优先 question_knowledge（DB），DB 不可用时回退 questions.json 的
+        knowledge_ids；两种情况都只读，不写库。
+        """
+        questions = _question_map()
+        if not questions:
+            return []
+
+        ordered: list[str] = []
+        meta: dict[str, tuple[str, str]] = {}
+
+        def add(question_id: str, relation: str, via_title: str = "") -> None:
+            if question_id in meta or question_id not in questions:
+                return
+            meta[question_id] = (relation, via_title)
+            ordered.append(question_id)
+
+        rows = self._question_relations(doc.id)
+        for row in rows:
+            add(row.question_id, "core" if row.relation_type == "core" else row.relation_type)
+
+        if len(ordered) < MAX_RELATED_QUESTIONS:
+            for link in prerequisites:
+                for row in self._question_relations(link.id):
+                    add(row.question_id, "prerequisite", link.title)
+                if len(ordered) >= MAX_RELATED_QUESTIONS:
+                    break
+
+        if len(ordered) < MAX_RELATED_QUESTIONS:
+            for link in related:
+                for row in self._question_relations(link.id):
+                    add(row.question_id, "related", link.title)
+                if len(ordered) >= MAX_RELATED_QUESTIONS:
+                    break
+
+        # DB 无关系（或测试环境未建表）时，用题库 knowledge_ids / knowledge_relations 兜底。
+        if len(ordered) < MAX_RELATED_QUESTIONS:
+            for question in questions.values():
+                if _question_links(question, doc.id):
+                    add(question["id"], "core")
+            for link in prerequisites:
+                for question in questions.values():
+                    if _question_links(question, link.id):
+                        add(question["id"], "prerequisite", link.title)
+                if len(ordered) >= MAX_RELATED_QUESTIONS:
+                    break
+
+        out: list[KnowledgeRelatedQuestion] = []
+        for question_id in ordered[:MAX_RELATED_QUESTIONS]:
+            question = questions[question_id]
+            relation, via_title = meta[question_id]
+            out.append(
+                KnowledgeRelatedQuestion(
+                    id=question_id,
+                    content=question.get("content", ""),
+                    difficulty=question.get("difficulty", ""),
+                    reference_answer=question.get("reference_answer", ""),
+                    relation=relation,
+                    via_title=via_title,
+                )
+            )
+        return out
+
+    def _question_relations(self, knowledge_id: str):
+        """question_knowledge 中某知识点的题目关系；DB 不可用时返回空列表。"""
+        if self.db is None or self._db_failed:
+            return []
+        try:
+            rows = self.db.execute(
+                select(QuestionKnowledge).where(QuestionKnowledge.knowledge_point_id == knowledge_id)
+            ).scalars().all()
+        except SQLAlchemyError:
+            self._db_failed = True
+            return []
+        # core 优先；同关系类型按 id 稳定排序
+        rows.sort(key=lambda row: (0 if row.relation_type == "core" else 1, row.id))
+        return rows

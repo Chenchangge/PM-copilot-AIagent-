@@ -2,8 +2,10 @@
 
 Route 保持薄层：HTTP → KnowledgeService → HTTP。
 """
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Depends, Query
+from sqlalchemy.orm import Session
 
+from app.db.database import get_db
 from app.schemas.knowledge import KnowledgeDetail, KnowledgeListResponse
 from app.services.knowledge_service import KnowledgeService
 
@@ -19,5 +21,5 @@ def list_knowledge(
 
 
 @router.get("/{knowledge_id}", response_model=KnowledgeDetail)
-def get_knowledge(knowledge_id: str) -> KnowledgeDetail:
-    return KnowledgeService().get_knowledge(knowledge_id)
+def get_knowledge(knowledge_id: str, db: Session = Depends(get_db)) -> KnowledgeDetail:
+    return KnowledgeService(db=db).get_knowledge(knowledge_id)

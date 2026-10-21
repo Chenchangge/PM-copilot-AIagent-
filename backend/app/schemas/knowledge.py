@@ -27,6 +27,30 @@ class KnowledgeInterviewQuestion(BaseModel):
     reference_answer: str = ""
 
 
+class KnowledgeLink(BaseModel):
+    """详情页可点击的前置知识 / 相关知识点。"""
+
+    id: str
+    title: str
+    category: str = ""
+    topic: str = ""
+    difficulty: str = ""
+
+
+class KnowledgeRelatedQuestion(BaseModel):
+    """详情页「相关面试题」：来自 question_knowledge / 题库。
+
+    relation: core（直接核心题）/ prerequisite（前置知识关联）/ related（相关知识关联）
+    """
+
+    id: str
+    content: str
+    difficulty: str = ""
+    reference_answer: str = ""
+    relation: str = "related"
+    via_title: str = ""
+
+
 class KnowledgeDetail(BaseModel):
     id: str
     title: str
@@ -39,3 +63,10 @@ class KnowledgeDetail(BaseModel):
     common_scenarios: list[str] = Field(default_factory=list)
     pm_focus: list[str] = Field(default_factory=list)
     interview_questions: list[KnowledgeInterviewQuestion] = Field(default_factory=list)
+
+    # P0-2：把库里已有但详情页没端出来的内容补齐
+    misconceptions: list[str] = Field(default_factory=list)
+    prerequisites: list[KnowledgeLink] = Field(default_factory=list)
+    related: list[KnowledgeLink] = Field(default_factory=list)
+    cases: list[str] = Field(default_factory=list)
+    related_questions: list[KnowledgeRelatedQuestion] = Field(default_factory=list)
