@@ -207,6 +207,16 @@ LEGACY_CATEGORY_LABELS = {
     "interview": "面试与求职",
 }
 
+# 旧计划任务里残留的历史知识点 ID（内容迁移后已不在 Markdown 索引）→ 展示标题。
+# 仅作为接口 title 的最后回退，不改变计划/任务数据。
+LEGACY_KNOWLEDGE_TITLES = {
+    "user-persona": "用户画像",
+    "user-requirements": "用户需求",
+    "user-value": "用户价值",
+    "product-goals": "产品目标",
+    "pm-responsibilities": "产品经理职责",
+}
+
 # ---- 学习路径（P0-1：把「内容分类」入口改成「学习目标」入口）----
 # 只做目标聚合，不新造知识点：target_type + target_ids 用现有 resolve_target 解析。
 # days_hint 是产品定义的建议冲刺周期；实际天数仍由后端按当前水平/每日时长/强度计算。

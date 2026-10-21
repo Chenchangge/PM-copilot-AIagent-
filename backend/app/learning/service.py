@@ -34,6 +34,7 @@ from app.learning.constants import (
     LEARNING_PATHS,
     LEARNING_PATHS_BY_ID,
     LEGACY_CATEGORY_LABELS,
+    LEGACY_KNOWLEDGE_TITLES,
     PLAN_ACTIVE,
     PLAN_COMPLETED,
     PLAN_FEATURED_CATEGORIES,
@@ -887,7 +888,9 @@ class LearningService:
         return TaskOut(
             id=t.id,
             knowledge_point_id=t.knowledge_point_id,
-            title=doc.title if doc else t.knowledge_point_id,
+            title=doc.title if doc else LEGACY_KNOWLEDGE_TITLES.get(
+                t.knowledge_point_id, t.knowledge_point_id
+            ),
             category=doc.category if doc else "",
             difficulty=doc.difficulty if doc else "",
             estimated_minutes=t.estimated_minutes,

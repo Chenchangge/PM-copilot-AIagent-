@@ -1,12 +1,12 @@
 ---
 id: user-story
-title: user-story
+title: 用户故事（User Story）
 category: product-foundation
 topic: pm-basics
 difficulty: 基础
 estimated_minutes: 20
 ---
-# user-story
+# 用户故事（User Story）
 
 ## 概述
 

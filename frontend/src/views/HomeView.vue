@@ -29,6 +29,17 @@ const actionLabel = (s) => {
   return '继续学习'
 }
 
+const taskStatusLabel = {
+  completed: '已完成',
+  in_progress: '学习中',
+  pending: '待学习',
+  skipped: '已跳过',
+}
+
+function taskLink(task) {
+  return `/learning/knowledge/${task.knowledge_point_id}?taskId=${task.id}`
+}
+
 async function load() {
   try {
     summary.value = await getHomeSummary()
@@ -91,6 +102,47 @@ onMounted(load)
       </div>
       <svg class="h-5 w-5 text-gray-300" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" /></svg>
     </RouterLink>
+
+    <!-- 今日任务：最多 3 条，直接进入知识点 -->
+    <section v-if="summary && summary.active_plan && summary.today_tasks && summary.today_tasks.length" class="mt-3">
+      <div class="flex items-center justify-between">
+        <h2 class="text-sm font-semibold text-gray-900">今日任务</h2>
+        <RouterLink :to="`/learning/plan/${summary.active_plan.id}`" class="text-[11px] text-brand-600">
+          查看计划
+        </RouterLink>
+      </div>
+      <div class="mt-2 space-y-2">
+        <RouterLink
+          v-for="t in summary.today_tasks.slice(0, 3)"
+          :key="t.id"
+          :to="taskLink(t)"
+          class="card flex items-center justify-between gap-3 p-3.5 transition-colors hover:border-gray-200"
+        >
+          <div class="flex min-w-0 items-center gap-2.5">
+            <span
+              class="flex h-5 w-5 shrink-0 items-center justify-center rounded-full border text-[10px] font-semibold"
+              :class="t.status === 'completed' ? 'border-green-500 bg-green-500 text-white' : 'border-gray-300 bg-white text-gray-400'"
+            >
+              {{ t.status === 'completed' ? '✓' : '' }}
+            </span>
+            <div class="min-w-0">
+              <p class="truncate text-sm font-medium" :class="t.status === 'completed' ? 'text-gray-400 line-through' : 'text-gray-900'">
+                {{ t.title }}
+              </p>
+              <p class="mt-0.5 text-[11px] text-gray-400">
+                {{ t.estimated_minutes }} 分钟 · {{ taskStatusLabel[t.status] || t.status }}
+              </p>
+            </div>
+          </div>
+          <svg class="h-4 w-4 shrink-0 text-gray-300" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+          </svg>
+        </RouterLink>
+      </div>
+      <p v-if="summary.today_tasks.length > 3" class="mt-1.5 text-[11px] text-gray-400">
+        还有 {{ summary.today_tasks.length - 3 }} 个任务，进入计划查看全部
+      </p>
+    </section>
 
     <h2 class="mt-8 text-base font-semibold text-gray-900">今天想做什么？</h2>
     <div class="mt-4 grid grid-cols-2 gap-3">
