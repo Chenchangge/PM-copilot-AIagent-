@@ -38,6 +38,19 @@ function pointMeta(status) {
   return POINT_STATUS[status] || POINT_STATUS.unknown
 }
 
+const FOLLOW_UP_LABELS = {
+  clarify: '澄清',
+  deepen: '深挖',
+  counter_example: '反例',
+  data: '要数据',
+  scenario: '换场景',
+  why: '追问原因',
+}
+
+function followUpLabel(type) {
+  return FOLLOW_UP_LABELS[type] || type
+}
+
 function turnTitle(turn) {
   return `第 ${turn.round_number} 题${turn.question_type === 'follow_up' ? ' · 追问' : ''}`
 }
@@ -198,7 +211,7 @@ onMounted(load)
               <div class="min-w-0">
                 <div class="flex flex-wrap items-center gap-2">
                   <span class="text-xs font-medium text-brand-600">{{ turnTitle(t) }}</span>
-                  <span v-if="t.question_type === 'follow_up' && t.follow_up_type" class="rounded-full bg-gray-100 px-2 py-0.5 text-[10px] text-gray-500">{{ t.follow_up_type }}</span>
+                  <span v-if="t.question_type === 'follow_up' && t.follow_up_type" class="rounded-full bg-gray-100 px-2 py-0.5 text-[10px] text-gray-500">{{ followUpLabel(t.follow_up_type) }}</span>
                 </div>
                 <p class="mt-1 text-sm font-medium leading-relaxed text-gray-900">{{ t.question }}</p>
               </div>

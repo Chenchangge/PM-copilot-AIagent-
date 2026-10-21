@@ -7,7 +7,7 @@ import httpx
 
 from app.core.errors import AIErrorCode, FRIENDLY_MESSAGES
 
-DEFAULT_TIMEOUT_SECONDS = 15.0
+DEFAULT_TIMEOUT_SECONDS = 60.0
 
 
 class BaseModelAdapter(ABC):

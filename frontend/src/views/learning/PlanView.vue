@@ -347,31 +347,6 @@ onMounted(load)
         <ChoiceGroup v-model="dailyMinutes" :options="dailyMinuteOptions" class="mt-2.5" />
       </section>
 
-      <section class="mt-4">
-        <div class="flex items-center justify-between">
-          <h2 class="text-sm font-semibold text-gray-900">估算模式</h2>
-          <span class="text-[11px] text-gray-400">核心速成 ≤14 天</span>
-        </div>
-        <div class="mt-2 grid grid-cols-2 gap-2">
-          <button
-            type="button"
-            class="rounded-xl border px-3 py-2.5 text-xs transition-colors"
-            :class="planMode === 'full' ? 'border-brand-600 bg-brand-50 text-brand-700' : 'border-gray-200 bg-white text-gray-600'"
-            @click="planMode = 'full'"
-          >
-            完整路径
-          </button>
-          <button
-            type="button"
-            class="rounded-xl border px-3 py-2.5 text-xs transition-colors"
-            :class="planMode === 'crash' ? 'border-brand-600 bg-brand-50 text-brand-700' : 'border-gray-200 bg-white text-gray-600'"
-            @click="planMode = 'crash'"
-          >
-            核心速成
-          </button>
-        </div>
-      </section>
-
       <div class="mt-4">
         <PrimaryButton :disabled="estimating || !canEstimate" @click="runEstimate">
           {{ estimating ? '分析中…' : '开始估算' }}
@@ -381,7 +356,7 @@ onMounted(load)
       <!-- 两个折叠入口：默认首屏可点击配置项控制在 10 个以内 -->
       <div class="mt-3 flex items-center justify-between text-xs">
         <button type="button" class="text-gray-500" @click="advancedOpen = !advancedOpen">
-          更多设置 · {{ level }} / {{ intensity }}
+          更多设置 · {{ level }} / {{ intensity }} / {{ planMode === 'crash' ? '核心速成' : '完整路径' }}
           <span class="text-gray-300">{{ advancedOpen ? '▴' : '▾' }}</span>
         </button>
         <button type="button" class="text-gray-500" @click="customOpen = !customOpen">
@@ -403,6 +378,29 @@ onMounted(load)
           <span class="text-[11px] text-gray-400">影响每日任务量</span>
         </div>
         <ChoiceGroup v-model="intensity" :options="intensityOptions" class="mt-2.5" />
+
+        <div class="mt-4 flex items-center justify-between">
+          <h2 class="text-sm font-semibold text-gray-900">估算模式</h2>
+          <span class="text-[11px] text-gray-400">核心速成 ≤14 天</span>
+        </div>
+        <div class="mt-2 grid grid-cols-2 gap-2">
+          <button
+            type="button"
+            class="rounded-xl border px-3 py-2.5 text-xs transition-colors"
+            :class="planMode === 'full' ? 'border-brand-600 bg-brand-50 text-brand-700' : 'border-gray-200 bg-white text-gray-600'"
+            @click="planMode = 'full'"
+          >
+            完整路径
+          </button>
+          <button
+            type="button"
+            class="rounded-xl border px-3 py-2.5 text-xs transition-colors"
+            :class="planMode === 'crash' ? 'border-brand-600 bg-brand-50 text-brand-700' : 'border-gray-200 bg-white text-gray-600'"
+            @click="planMode = 'crash'"
+          >
+            核心速成
+          </button>
+        </div>
 
         <div class="mt-4">
           <label class="text-sm font-semibold text-gray-900" for="plan-direction">目标面试方向（可选）</label>
