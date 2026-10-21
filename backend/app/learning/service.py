@@ -15,6 +15,7 @@ from collections import Counter
 from functools import lru_cache
 
 from sqlalchemy import func, select
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
 from app.core.config import PROJECT_ROOT
@@ -49,6 +50,7 @@ from app.learning.constants import (
     TASK_COMPLETED,
     TASK_IN_PROGRESS,
     TASK_PENDING,
+    TASK_SKIPPED,
     TOPIC_CATEGORY,
     TOPIC_NAMES,
 )
@@ -70,6 +72,7 @@ from app.learning.planner import (
 )
 from app.models.interview import InterviewEvaluation
 from app.models.learning import KnowledgeLearningRecord, LearningPlan, LearningPlanDay, LearningPlanTask
+from app.models.taxonomy import QuestionKnowledge
 from app.schemas.learning import (
     CategoryOut,
     CreatePlanRequest,
@@ -77,6 +80,7 @@ from app.schemas.learning import (
     EstimateRequest,
     EstimateResult,
     HomeSummaryOut,
+    MakeupResult,
     PlanCategoryOut,
     PlanDetailOut,
     PlanListItem,
@@ -294,12 +298,60 @@ class LearningService:
         target = min(path["days_hint"], len(points))
         return min(len(points), max(required, target))
 
+    def _core_relation_counts(self) -> dict[str, int]:
+        """核心题关联次数：用于「核心速成」优先选真正被面试题覆盖的知识点。"""
+        try:
+            rows = self.db.execute(
+                select(QuestionKnowledge.knowledge_point_id).where(
+                    QuestionKnowledge.relation_type == "core"
+                )
+            ).scalars().all()
+        except SQLAlchemyError:
+            return {}
+        return dict(Counter(rows))
+
+    def _crash_points(
+        self,
+        points: list[KnowledgePointView],
+        daily_minutes: int,
+        intensity: str,
+    ) -> list[KnowledgePointView]:
+        """核心速成：只选被 core 题目覆盖的知识点，并按 14 天预算截断。
+
+        没有 core 关系（旧库/测试库）时退回全部候选项，但仍受 14 天预算约束。
+        """
+        effective = effective_daily_minutes(daily_minutes, intensity)
+        budget = 14 * effective
+        counts = self._core_relation_counts()
+        core = [p for p in points if counts.get(p.id, 0) > 0]
+        candidates = core or points
+        candidates = sorted(
+            candidates,
+            key=lambda p: (-counts.get(p.id, 0), p.estimated_minutes, p.title),
+        )
+        selected: list[KnowledgePointView] = []
+        total = 0
+        for point in candidates:
+            if selected and total + point.estimated_minutes > budget:
+                continue
+            selected.append(point)
+            total += point.estimated_minutes
+            if total >= budget:
+                break
+        return selected or points[:1]
+
+    @staticmethod
+    def _crash_days(points: list[KnowledgePointView], total_minutes: int, effective_minutes: int) -> int:
+        return max(1, min(14, compute_recommended_days(total_minutes, effective_minutes), len(points)))
+
     # ================= estimate =================
     def estimate(self, user_id: str, req: EstimateRequest) -> EstimateResult:
         ordered, target_name, path = self._resolve_ordered(req)
         total_minutes = compute_total_minutes(ordered)
         effective_minutes = effective_daily_minutes(req.daily_minutes, req.intensity)
-        if path is not None:
+        if getattr(req, "mode", "full") == "crash":
+            recommended_days = self._crash_days(ordered, total_minutes, effective_minutes)
+        elif path is not None:
             recommended_days = self._path_days(path, ordered, total_minutes, effective_minutes)
         else:
             # 天数不能超过知识点数，否则最后几天必然空（每天至少 1 个任务）。
@@ -336,6 +388,7 @@ class LearningService:
             ),
             path_id=path["id"] if path is not None else None,
             target_days=path["days_hint"] if path is not None else None,
+            mode=getattr(req, "mode", "full"),
             knowledge_count=len(ordered),
             total_minutes=total_minutes,
             recommended_days=recommended_days,
@@ -354,13 +407,17 @@ class LearningService:
         ordered, target_name, path = self._resolve_ordered(req)
         total_minutes = compute_total_minutes(ordered)
         effective_minutes = effective_daily_minutes(req.daily_minutes, req.intensity)
-        if path is not None:
+        if getattr(req, "mode", "full") == "crash":
+            recommended_days = self._crash_days(ordered, total_minutes, effective_minutes)
+        elif path is not None:
             recommended_days = self._path_days(path, ordered, total_minutes, effective_minutes)
         else:
             recommended_days = min(
                 compute_recommended_days(total_minutes, effective_minutes), len(ordered)
             )
         selected_days = req.selected_days if req.selected_days > 0 else recommended_days
+        if getattr(req, "mode", "full") == "crash":
+            selected_days = min(14, selected_days)
 
         # 路径计划自动带上面试方向（用于完成后的模拟面试推荐）。
         direction_id = req.direction_id or (path.get("direction") if path else None)
@@ -467,6 +524,8 @@ class LearningService:
         task, plan = self._get_task(user_id, task_id)
         if task.status == TASK_COMPLETED:
             raise LearningError(LearningErrorCode.learning_task_state, "任务已完成")
+        if task.status == TASK_SKIPPED:
+            raise LearningError(LearningErrorCode.learning_task_state, "任务已跳过")
         if task.status == TASK_PENDING:
             task.status = TASK_IN_PROGRESS
         day = self.db.get(LearningPlanDay, task.plan_day_id)
@@ -482,7 +541,7 @@ class LearningService:
         task, plan = self._get_task(user_id, task_id)
         if task.status == TASK_COMPLETED:
             return self._plan_detail(plan)  # 幂等
-        if task.status == "skipped":
+        if task.status == TASK_SKIPPED:
             raise LearningError(LearningErrorCode.learning_task_state, "已跳过的任务无法完成")
         task.status = TASK_COMPLETED
         task.completed_at = _utcnow()
@@ -491,6 +550,45 @@ class LearningService:
         self.db.commit()
         self.db.refresh(plan)
         return self._plan_detail(plan)
+
+    def skip_task(self, user_id: str, task_id: int) -> PlanDetailOut:
+        task, plan = self._get_task(user_id, task_id)
+        if task.status == TASK_COMPLETED:
+            raise LearningError(LearningErrorCode.learning_task_state, "已完成的任务不能跳过")
+        if task.status == TASK_SKIPPED:
+            return self._plan_detail(plan)  # 幂等
+        task.status = TASK_SKIPPED
+        task.completed_at = _utcnow()
+        self._recompute_plan(plan)
+        self.db.commit()
+        self.db.refresh(plan)
+        return self._plan_detail(plan)
+
+    # ================= 补卡 =================
+    def makeup(self, user_id: str, plan_id: int) -> MakeupResult:
+        """把昨天未完成（pending / in_progress）的任务平移到今天。"""
+        plan = self._get_plan(user_id, plan_id)
+        if plan.status not in (PLAN_ACTIVE, PLAN_PAUSED):
+            raise LearningError(LearningErrorCode.learning_plan_state, "当前状态不允许补卡")
+
+        days, tasks_by_day = self._load_days(plan)
+        current_number = self._current_day_number(days)
+        today = next((d for d in days if d.day_number == current_number), None)
+        yesterday = next((d for d in days if d.day_number == current_number - 1), None)
+        if today is None or yesterday is None:
+            return MakeupResult(moved=0, plan=self._plan_detail(plan))
+
+        moving = [
+            t for t in tasks_by_day.get(yesterday.id, [])
+            if t.status in (TASK_PENDING, TASK_IN_PROGRESS)
+        ]
+        for task in moving:
+            task.plan_day_id = today.id
+        if moving:
+            self._recompute_plan(plan)
+            self.db.commit()
+            self.db.refresh(plan)
+        return MakeupResult(moved=len(moving), plan=self._plan_detail(plan))
 
     # ================= 独立学习记录 =================
     def start_knowledge(self, user_id: str, knowledge_id: str) -> dict:
@@ -544,20 +642,21 @@ class LearningService:
         day_number = self._current_day_number(days)
         day = next((d for d in days if d.day_number == day_number), None)
         today_tasks = tasks_by_day.get(day.id, []) if day else []
-        done = sum(1 for t in today_tasks if t.status == TASK_COMPLETED)
-        minutes = sum(t.estimated_minutes for t in today_tasks if t.status == TASK_COMPLETED)
+        active_today = [t for t in today_tasks if t.status != TASK_SKIPPED]
+        done = sum(1 for t in active_today if t.status == TASK_COMPLETED)
+        minutes = sum(t.estimated_minutes for t in active_today if t.status == TASK_COMPLETED)
 
         next_action = "continue"
         if plan.status == PLAN_COMPLETED:
             next_action = "interview"
-        elif today_tasks and done == len(today_tasks):
+        elif active_today and done == len(active_today):
             next_action = "day_done"
 
         return HomeSummaryOut(
             active_plan=self._plan_item(plan),
             today_tasks=[self._task_out(t) for t in today_tasks],
             overall_progress=plan.progress_percent,
-            today_progress=TodayProgress(done=done, total=len(today_tasks), minutes=minutes),
+            today_progress=TodayProgress(done=done, total=len(active_today), minutes=minutes),
             recommended_next_action=next_action,
         )
 
@@ -583,6 +682,8 @@ class LearningService:
             points = filter_recommendable(resolve_target(self.index, req.target_type, req.target_id))
 
         points = filter_by_level(points, req.current_level)
+        if getattr(req, "mode", "full") == "crash":
+            points = self._crash_points(points, req.daily_minutes, req.intensity)
         if not points:
             raise LearningError(
                 LearningErrorCode.learning_target_empty,
@@ -687,13 +788,13 @@ class LearningService:
         pending_points = [
             self.index.get(t.knowledge_point_id)
             for t in all_tasks
-            if t.status != TASK_COMPLETED
+            if t.status not in (TASK_COMPLETED, TASK_SKIPPED)
         ]
         pending_points = schedule_points([p for p in pending_points if p is not None])
 
-        # 删除未完成任务（已完成任务冻结在原 Day）
+        # 删除未完成任务（已完成/已跳过任务冻结在原 Day）
         for t in all_tasks:
-            if t.status != TASK_COMPLETED:
+            if t.status not in (TASK_COMPLETED, TASK_SKIPPED):
                 self.db.delete(t)
 
         n = max(1, selected_days)
@@ -743,28 +844,42 @@ class LearningService:
         days, tasks_by_day = self._load_days(plan)
         all_tasks = [t for tasks in tasks_by_day.values() for t in tasks]
 
-        plan.total_knowledge_points = len(all_tasks)
-        plan.total_estimated_minutes = sum(t.estimated_minutes for t in all_tasks)
-        completed = [t for t in all_tasks if t.status == TASK_COMPLETED]
+        # 跳过（已掌握）的任务从完成率分母中剔除，但不能让进度倒退。
+        active_tasks = [t for t in all_tasks if t.status != TASK_SKIPPED]
+        plan.total_knowledge_points = len(active_tasks)
+        plan.total_estimated_minutes = sum(t.estimated_minutes for t in active_tasks)
+        completed = [t for t in active_tasks if t.status == TASK_COMPLETED]
         plan.completed_knowledge_points = len(completed)
         plan.completed_minutes = sum(t.estimated_minutes for t in completed)
-        plan.progress_percent = round(len(completed) / len(all_tasks) * 100) if all_tasks else 0
-        if all_tasks and len(completed) == len(all_tasks):
+        if not active_tasks:
+            plan.progress_percent = 100 if all_tasks else 0
+        else:
+            plan.progress_percent = round(len(completed) / len(active_tasks) * 100)
+        if all_tasks and not active_tasks:
+            plan.status = PLAN_COMPLETED
+            plan.completed_at = plan.completed_at or _utcnow()
+        elif active_tasks and len(completed) == len(active_tasks):
             plan.status = PLAN_COMPLETED
             plan.completed_at = plan.completed_at or _utcnow()
 
         days_by_id = {d.id: d for d in days}
         for day_id, tasks in tasks_by_day.items():
             day = days_by_id[day_id]
-            planned = sum(t.estimated_minutes for t in tasks)
-            done = sum(t.estimated_minutes for t in tasks if t.status == TASK_COMPLETED)
+            active = [t for t in tasks if t.status != TASK_SKIPPED]
+            planned = sum(t.estimated_minutes for t in active)
+            done = sum(t.estimated_minutes for t in active if t.status == TASK_COMPLETED)
             day.planned_minutes = planned
             day.completed_minutes = done
-            day.progress_percent = round(done / planned * 100) if planned else 0
-            if tasks and all(t.status == TASK_COMPLETED for t in tasks):
+            if tasks and all(t.status == TASK_SKIPPED for t in tasks):
+                # 整日都是「已掌握」跳过的内容：显示已跳过，不伪造 100% 完成
+                day.progress_percent = 0
+                day.status = "skipped"
+                continue
+            day.progress_percent = round(done / planned * 100) if planned else (100 if tasks else 0)
+            if tasks and all(t.status in (TASK_COMPLETED, TASK_SKIPPED) for t in tasks):
                 day.status = "completed"
                 day.completed_at = day.completed_at or _utcnow()
-            elif any(t.status in (TASK_COMPLETED, TASK_IN_PROGRESS) for t in tasks):
+            elif any(t.status in (TASK_COMPLETED, TASK_IN_PROGRESS) for t in active):
                 day.status = "in_progress"
             else:
                 day.status = "available"
@@ -821,7 +936,8 @@ class LearningService:
 
     def _current_day_number(self, days) -> int:
         for d in days:
-            if d.status != "completed":
+            # 整日被跳过的内容等同于「这一天已处理完」，进度进入下一天
+            if d.status not in ("completed", "skipped"):
                 return d.day_number
         return days[-1].day_number if days else 1
 

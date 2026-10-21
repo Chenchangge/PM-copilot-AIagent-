@@ -20,6 +20,7 @@ from app.schemas.learning import (
     EstimateRequest,
     EstimateResult,
     HomeSummaryOut,
+    MakeupResult,
     PlanDetailOut,
     PlanListResponse,
     PlanTaxonomyOut,
@@ -118,6 +119,16 @@ def start_task(task_id: int, user_id: str = Depends(get_user_id), db: Session = 
 @router.post("/tasks/{task_id}/complete", response_model=PlanDetailOut)
 def complete_task(task_id: int, user_id: str = Depends(get_user_id), db: Session = Depends(get_db)) -> PlanDetailOut:
     return LearningService(db).complete_task(user_id, task_id)
+
+
+@router.post("/tasks/{task_id}/skip", response_model=PlanDetailOut)
+def skip_task(task_id: int, user_id: str = Depends(get_user_id), db: Session = Depends(get_db)) -> PlanDetailOut:
+    return LearningService(db).skip_task(user_id, task_id)
+
+
+@router.post("/plans/{plan_id}/makeup", response_model=MakeupResult)
+def makeup_plan(plan_id: int, user_id: str = Depends(get_user_id), db: Session = Depends(get_db)) -> MakeupResult:
+    return LearningService(db).makeup(user_id, plan_id)
 
 
 @router.post("/knowledge/{knowledge_id}/start")

@@ -46,6 +46,14 @@ export function completeTask(id) {
   return http.post(`/learning/tasks/${id}/complete`)
 }
 
+export function skipTask(id) {
+  return http.post(`/learning/tasks/${id}/skip`)
+}
+
+export function makeupPlan(id) {
+  return http.post(`/learning/plans/${id}/makeup`)
+}
+
 export function startKnowledge(id) {
   return http.post(`/learning/knowledge/${id}/start`)
 }

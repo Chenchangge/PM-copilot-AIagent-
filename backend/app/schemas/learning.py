@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from datetime import datetime
+from typing import Literal
 
 from pydantic import BaseModel, Field, field_validator, model_validator
 
@@ -25,6 +26,7 @@ class EstimateRequest(BaseModel):
     daily_minutes: int = 30
     intensity: str = "标准"
     direction_id: str | None = None
+    mode: Literal["full", "crash"] = "full"
 
     @model_validator(mode="after")
     def _check_target(self):
@@ -202,6 +204,7 @@ class EstimateResult(BaseModel):
     target: TargetInfo
     path_id: str | None = None
     target_days: int | None = None
+    mode: str = "full"
     knowledge_count: int
     total_minutes: int
     recommended_days: int
@@ -271,6 +274,11 @@ class PlanDetailOut(BaseModel):
     completed_at: datetime | None = None
     days: list[DayOut] = Field(default_factory=list)
     recommended_interview: RecommendedInterview | None = None
+
+
+class MakeupResult(BaseModel):
+    moved: int = 0
+    plan: PlanDetailOut
 
 
 class PlanListItem(BaseModel):

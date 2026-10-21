@@ -6,7 +6,7 @@ import PageHeader from '@/components/layout/PageHeader.vue'
 import PrimaryButton from '@/components/ui/PrimaryButton.vue'
 import ProgressBar from '@/components/ui/ProgressBar.vue'
 import ChoiceGroup from '@/components/ui/ChoiceGroup.vue'
-import { getPlan, pausePlan, resumePlan, updatePlan } from '@/api/learning'
+import { getPlan, makeupPlan, pausePlan, resumePlan, skipTask, updatePlan } from '@/api/learning'
 import { extractInterviewError } from '@/utils/interview'
 
 const route = useRoute()
@@ -22,6 +22,19 @@ const busy = ref(false)
 const adjusting = ref(false)
 const newDaily = ref('30')
 const newDays = ref('7')
+const makeupMessage = ref('')
+
+const remainingDays = computed(() =>
+  Math.max(1, (plan.value?.selected_days || 1) - (plan.value?.current_day_number || 1) + 1),
+)
+
+// 调整天数不再写死 5/7/10/14：围绕当前计划天数生成附近选项，并显示剩余天数。
+const dayOptions = computed(() => {
+  const base = plan.value?.selected_days || 7
+  const start = Math.max(1, base - 3)
+  const end = Math.min(1000, base + 3)
+  return Array.from({ length: end - start + 1 }, (_, i) => String(start + i))
+})
 
 const statusLabel = { active: '进行中', paused: '已暂停', completed: '已完成', draft: '草稿', abandoned: '已放弃' }
 const dayStatusLabel = { completed: '✓ 已完成', in_progress: '进行中', available: '未开始', locked: '未解锁', skipped: '已跳过' }
@@ -32,6 +45,7 @@ const currentDay = computed(() => plan.value?.current_day_number)
 async function load() {
   loading.value = true
   error.value = ''
+  makeupMessage.value = ''
   try {
     plan.value = await getPlan(planId)
     newDaily.value = String(plan.value.daily_minutes)
@@ -65,6 +79,36 @@ async function applyAdjust() {
       selected_days: Number(newDays.value),
     })
     adjusting.value = false
+  } catch (e) {
+    error.value = extractInterviewError(e).message
+  } finally {
+    busy.value = false
+  }
+}
+
+async function skip(task) {
+  if (busy.value) return
+  if (task.status === 'completed') return
+  busy.value = true
+  error.value = ''
+  try {
+    plan.value = await skipTask(task.id)
+  } catch (e) {
+    error.value = extractInterviewError(e).message
+  } finally {
+    busy.value = false
+  }
+}
+
+async function makeup() {
+  if (busy.value) return
+  busy.value = true
+  error.value = ''
+  makeupMessage.value = ''
+  try {
+    const data = await makeupPlan(planId)
+    plan.value = data.plan
+    makeupMessage.value = data.moved ? `已补卡 ${data.moved} 个任务` : '昨天没有未完成的任务'
   } catch (e) {
     error.value = extractInterviewError(e).message
   } finally {
@@ -131,11 +175,11 @@ onMounted(load)
       </div>
 
       <!-- 操作 -->
-      <div class="mt-4 flex gap-2">
+      <div class="mt-4 flex flex-wrap gap-2">
         <button
           v-if="plan.status === 'active' || plan.status === 'paused'"
           type="button"
-          class="flex-1 rounded-2xl border border-gray-200 bg-white px-4 py-3 text-sm font-medium text-gray-600"
+          class="min-w-[7rem] flex-1 rounded-2xl border border-gray-200 bg-white px-4 py-3 text-sm font-medium text-gray-600"
           @click="togglePause"
         >
           {{ plan.status === 'active' ? '暂停计划' : '恢复计划' }}
@@ -143,19 +187,32 @@ onMounted(load)
         <button
           v-if="plan.status === 'active' || plan.status === 'paused'"
           type="button"
-          class="flex-1 rounded-2xl border border-gray-200 bg-white px-4 py-3 text-sm font-medium text-gray-600"
+          class="min-w-[7rem] flex-1 rounded-2xl border border-gray-200 bg-white px-4 py-3 text-sm font-medium text-gray-600"
           @click="adjusting = !adjusting"
         >
           调整计划
         </button>
+        <button
+          v-if="(plan.status === 'active' || plan.status === 'paused') && plan.current_day_number > 1"
+          type="button"
+          class="min-w-[6rem] flex-1 rounded-2xl border border-gray-200 bg-white px-4 py-3 text-sm font-medium text-gray-600 disabled:text-gray-300"
+          :disabled="busy"
+          @click="makeup"
+        >
+          补卡
+        </button>
       </div>
+      <p v-if="makeupMessage" class="mt-2 text-xs text-brand-600">{{ makeupMessage }}</p>
 
       <!-- 调整面板 -->
       <div v-if="adjusting" class="card mt-3 p-5">
         <p class="text-sm font-medium text-gray-900">每日学习时间</p>
         <ChoiceGroup v-model="newDaily" :options="['15', '30', '45', '60']" class="mt-2" />
-        <p class="mt-4 text-sm font-medium text-gray-900">剩余学习周期（天）</p>
-        <ChoiceGroup v-model="newDays" :options="['5', '7', '10', '14']" class="mt-2" />
+        <div class="mt-4 flex items-baseline justify-between">
+          <p class="text-sm font-medium text-gray-900">学习周期（天）</p>
+          <span class="text-[11px] text-gray-400">当前剩余 {{ remainingDays }} 天</span>
+        </div>
+        <ChoiceGroup v-model="newDays" :options="dayOptions" class="mt-2" />
         <div class="mt-4 flex gap-2">
           <button type="button" class="flex-1 rounded-2xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-600" @click="adjusting = false">取消</button>
           <div class="flex-1">
@@ -184,27 +241,41 @@ onMounted(load)
           </div>
 
           <div v-if="day.tasks.length" class="mt-3 space-y-2">
-            <button
+            <div
               v-for="task in day.tasks"
               :key="task.id"
-              type="button"
+              role="button"
+              tabindex="0"
               class="flex w-full items-center justify-between rounded-xl border border-gray-100 bg-gray-50 px-3 py-2.5 text-left transition-colors hover:border-gray-200"
               @click="openTask(task)"
+              @keydown.enter="openTask(task)"
             >
               <div class="flex min-w-0 items-center gap-2">
                 <span
-                  class="h-4 w-4 shrink-0 rounded-full border"
-                  :class="task.status === 'completed' ? 'border-green-500 bg-green-500' : 'border-gray-300 bg-white'"
+                  class="flex h-4 w-4 shrink-0 items-center justify-center rounded-full border"
+                  :class="task.status === 'completed' ? 'border-green-500 bg-green-500' : task.status === 'skipped' ? 'border-gray-300 bg-gray-100' : 'border-gray-300 bg-white'"
                 >
                   <svg v-if="task.status === 'completed'" class="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>
+                  <span v-else-if="task.status === 'skipped'" class="text-[9px] text-gray-400">—</span>
                 </span>
                 <div class="min-w-0">
-                  <p class="truncate text-sm font-medium text-gray-900">{{ task.title }}</p>
+                  <p class="truncate text-sm font-medium" :class="task.status === 'skipped' ? 'text-gray-400 line-through' : 'text-gray-900'">{{ task.title }}</p>
                   <p class="text-xs text-gray-400">{{ task.estimated_minutes }} 分钟 · {{ taskStatusLabel[task.status] }}</p>
                 </div>
               </div>
-              <svg class="h-4 w-4 shrink-0 text-gray-300" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" /></svg>
-            </button>
+              <div class="flex shrink-0 items-center gap-2">
+                <button
+                  v-if="task.status === 'pending' || task.status === 'in_progress'"
+                  type="button"
+                  class="rounded-full border border-gray-200 bg-white px-2.5 py-1 text-[11px] text-gray-500 active:bg-gray-50"
+                  :disabled="busy"
+                  @click.stop="skip(task)"
+                >
+                  跳过
+                </button>
+                <svg class="h-4 w-4 text-gray-300" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" /></svg>
+              </div>
+            </div>
           </div>
           <p v-else class="mt-3 text-xs text-gray-400">本日暂无任务</p>
         </div>

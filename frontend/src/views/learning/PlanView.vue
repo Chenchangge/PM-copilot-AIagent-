@@ -33,6 +33,7 @@ const level = ref('基础')
 const dailyMinutes = ref('30')
 const intensity = ref('标准')
 const directionId = ref('')
+const planMode = ref('full') // full | crash
 
 // 估算 / 创建
 const estimating = ref(false)
@@ -217,6 +218,7 @@ function buildPayload() {
     current_level: level.value,
     daily_minutes: Number(dailyMinutes.value),
     intensity: intensity.value,
+    mode: planMode.value,
   }
   if (mode.value === 'path') {
     return { path_id: selectedPathId.value, ...base }
@@ -266,6 +268,7 @@ async function runCreate() {
 }
 
 watch([level, dailyMinutes, intensity], refreshTaxonomy)
+watch(planMode, clearEstimate)
 
 onMounted(load)
 </script>
@@ -342,6 +345,31 @@ onMounted(load)
           <span class="text-[11px] text-gray-400">分钟</span>
         </div>
         <ChoiceGroup v-model="dailyMinutes" :options="dailyMinuteOptions" class="mt-2.5" />
+      </section>
+
+      <section class="mt-4">
+        <div class="flex items-center justify-between">
+          <h2 class="text-sm font-semibold text-gray-900">估算模式</h2>
+          <span class="text-[11px] text-gray-400">核心速成 ≤14 天</span>
+        </div>
+        <div class="mt-2 grid grid-cols-2 gap-2">
+          <button
+            type="button"
+            class="rounded-xl border px-3 py-2.5 text-xs transition-colors"
+            :class="planMode === 'full' ? 'border-brand-600 bg-brand-50 text-brand-700' : 'border-gray-200 bg-white text-gray-600'"
+            @click="planMode = 'full'"
+          >
+            完整路径
+          </button>
+          <button
+            type="button"
+            class="rounded-xl border px-3 py-2.5 text-xs transition-colors"
+            :class="planMode === 'crash' ? 'border-brand-600 bg-brand-50 text-brand-700' : 'border-gray-200 bg-white text-gray-600'"
+            @click="planMode = 'crash'"
+          >
+            核心速成
+          </button>
+        </div>
       </section>
 
       <div class="mt-4">
@@ -537,9 +565,12 @@ onMounted(load)
             <p class="text-[11px] font-medium text-brand-600">估算结果</p>
             <h2 class="mt-0.5 truncate text-base font-semibold text-gray-900">{{ estimate.target.name }}</h2>
           </div>
-          <span class="shrink-0 rounded-full bg-gray-100 px-2.5 py-1 text-[11px] font-medium text-gray-600">
-            {{ estimate.recommended_days }} 天
-          </span>
+          <div class="flex shrink-0 flex-col items-end gap-1">
+            <span class="rounded-full bg-gray-100 px-2.5 py-1 text-[11px] font-medium text-gray-600">
+              {{ estimate.recommended_days }} 天
+            </span>
+            <span class="text-[10px] text-brand-600">{{ estimate.mode === 'crash' ? '核心速成' : '完整路径' }}</span>
+          </div>
         </div>
 
         <div class="mt-2.5 grid grid-cols-3 gap-2">
