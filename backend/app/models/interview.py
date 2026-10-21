@@ -66,6 +66,8 @@ class InterviewEvaluation(Base):
     overall_weaknesses: Mapped[list] = mapped_column(JSON, nullable=False, default=list)
     summary: Mapped[str | None] = mapped_column(String, nullable=True)
     recommended_knowledge: Mapped[list] = mapped_column(JSON, nullable=False, default=list)
+    # P0-3：逐题复盘（题号/回答/评分点/参考答案），由 LLM question_reviews + turn 记录合成
+    turn_reviews: Mapped[list] = mapped_column(JSON, nullable=False, default=list)
     model: Mapped[str | None] = mapped_column(String, nullable=True)
     provider: Mapped[str | None] = mapped_column(String, nullable=True)
     error_code: Mapped[str | None] = mapped_column(String, nullable=True)

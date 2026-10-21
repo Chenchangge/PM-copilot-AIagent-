@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 import PageHeader from '@/components/layout/PageHeader.vue'
@@ -21,6 +21,36 @@ const failedError = ref('')
 const error = ref('')
 const errorCode = ref('')
 const expanded = ref({})
+const expandedAnswers = ref({})
+
+const turnMap = computed(() =>
+  Object.fromEntries((report.value?.turn_reviews || []).map((t) => [t.turn_id, t])),
+)
+
+const POINT_STATUS = {
+  met: { icon: '✓', class: 'bg-green-50 text-green-600' },
+  partial: { icon: '△', class: 'bg-amber-50 text-amber-600' },
+  missed: { icon: '✗', class: 'bg-red-50 text-red-500' },
+  unknown: { icon: '—', class: 'bg-gray-100 text-gray-400' },
+}
+
+function pointMeta(status) {
+  return POINT_STATUS[status] || POINT_STATUS.unknown
+}
+
+function turnTitle(turn) {
+  return `第 ${turn.round_number} 题${turn.question_type === 'follow_up' ? ' · 追问' : ''}`
+}
+
+function evidenceLabel(evidence) {
+  const turn = turnMap.value[evidence.turn_id]
+  if (!turn) return `第 ${evidence.turn_id} 轮`
+  return `第 ${turn.round_number} 题${turn.question_type === 'follow_up' ? ' · 追问' : ''}`
+}
+
+function toggleAnswer(turnId) {
+  expandedAnswers.value = { ...expandedAnswers.value, [turnId]: !expandedAnswers.value[turnId] }
+}
 
 function scoreLabel(score) {
   if (score >= 90) return '表现优秀'
@@ -152,6 +182,77 @@ onMounted(load)
         <p class="mt-1 text-xs text-gray-400">{{ scoreLabel(report.overall_score) }}</p>
       </section>
 
+      <section v-if="report.turn_reviews && report.turn_reviews.length" class="mt-8">
+        <SectionTitle title="逐题复盘" />
+        <p class="mt-1 text-[11px] text-gray-400">✓ 达成 · △ 部分达成 · ✗ 未达成 · — 未判定</p>
+        <div class="mt-3 space-y-2">
+          <div v-for="t in report.turn_reviews" :key="t.turn_id" class="card rounded-2xl p-4">
+            <div class="flex items-start justify-between gap-3">
+              <div class="min-w-0">
+                <div class="flex flex-wrap items-center gap-2">
+                  <span class="text-xs font-medium text-brand-600">{{ turnTitle(t) }}</span>
+                  <span v-if="t.question_type === 'follow_up' && t.follow_up_type" class="rounded-full bg-gray-100 px-2 py-0.5 text-[10px] text-gray-500">{{ t.follow_up_type }}</span>
+                </div>
+                <p class="mt-1 text-sm font-medium leading-relaxed text-gray-900">{{ t.question }}</p>
+              </div>
+              <span
+                v-if="t.score !== null && t.score !== undefined"
+                class="shrink-0 rounded-full bg-brand-50 px-2.5 py-1 text-[11px] font-semibold text-brand-700"
+              >
+                {{ t.score }} 分
+              </span>
+              <span v-else class="shrink-0 text-[11px] text-gray-400">未单独评分</span>
+            </div>
+
+            <div v-if="t.answer" class="mt-3">
+              <p class="text-[11px] text-gray-400">我的回答</p>
+              <p
+                class="mt-1 whitespace-pre-wrap text-sm leading-relaxed text-gray-600"
+                :class="expandedAnswers[t.turn_id] ? '' : 'line-clamp-3'"
+              >
+                {{ t.answer }}
+              </p>
+              <button
+                v-if="t.answer.length > 90"
+                type="button"
+                class="mt-1 text-xs font-medium text-brand-600"
+                @click="toggleAnswer(t.turn_id)"
+              >
+                {{ expandedAnswers[t.turn_id] ? '收起回答' : '展开回答' }}
+              </button>
+            </div>
+            <p v-else class="mt-3 text-sm text-gray-400">未作答</p>
+
+            <div v-if="t.point_results.length" class="mt-3">
+              <p class="text-[11px] text-gray-400">评分点达成情况</p>
+              <ul class="mt-1.5 space-y-1.5">
+                <li v-for="(p, i) in t.point_results" :key="i" class="flex items-start gap-2 text-sm text-gray-600">
+                  <span
+                    class="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[11px] font-semibold"
+                    :class="pointMeta(p.status).class"
+                  >
+                    {{ pointMeta(p.status).icon }}
+                  </span>
+                  <span class="min-w-0">
+                    {{ p.point }}
+                    <span v-if="p.comment" class="mt-0.5 block text-[11px] leading-relaxed text-gray-400">{{ p.comment }}</span>
+                  </span>
+                </li>
+              </ul>
+            </div>
+
+            <p v-if="t.comment" class="mt-2 rounded-xl bg-gray-50 px-3 py-2 text-xs leading-relaxed text-gray-500">
+              点评：{{ t.comment }}
+            </p>
+
+            <details v-if="t.reference_answer" class="mt-3 rounded-xl bg-gray-50">
+              <summary class="cursor-pointer list-none px-3 py-2 text-xs font-medium text-brand-600">查看参考答案</summary>
+              <p class="whitespace-pre-wrap border-t border-gray-100 px-3 py-2.5 text-sm leading-relaxed text-gray-600">{{ t.reference_answer }}</p>
+            </details>
+          </div>
+        </div>
+      </section>
+
       <section class="mt-8">
         <SectionTitle title="能力分析" />
         <div class="mt-3 space-y-2">
@@ -159,9 +260,10 @@ onMounted(load)
             <button type="button" class="w-full p-4 text-left" @click="toggleDimension(d.dimension)">
               <div class="flex items-center justify-between">
                 <span class="text-sm font-medium text-gray-900">{{ d.dimension }}</span>
-                <span class="text-sm font-semibold text-gray-900">{{ d.score }}</span>
+                <span v-if="d.score !== null" class="text-sm font-semibold text-gray-900">{{ d.score }}</span>
+                <span v-else class="text-xs text-gray-400">本场未考察</span>
               </div>
-              <ProgressBar :value="d.score" size="sm" class="mt-2" />
+              <ProgressBar v-if="d.score !== null" :value="d.score" size="sm" class="mt-2" />
             </button>
             <div v-if="expanded[d.dimension]" class="border-t border-gray-100 px-4 py-3">
               <div v-if="d.strengths.length">
@@ -179,9 +281,13 @@ onMounted(load)
               <div v-if="d.evidence.length" class="mt-3">
                 <p class="text-xs font-medium text-gray-400">评价依据</p>
                 <ul class="mt-1 space-y-1 text-sm text-gray-500">
-                  <li v-for="(ev, i) in d.evidence" :key="i">· {{ ev.observation }}</li>
+                  <li v-for="(ev, i) in d.evidence" :key="i">
+                    <span class="text-[11px] font-medium text-brand-600">针对{{ evidenceLabel(ev) }}</span>
+                    <span class="ml-1">{{ ev.observation }}</span>
+                  </li>
                 </ul>
               </div>
+              <p v-else class="mt-3 text-xs text-gray-400">本场未考察该维度。</p>
             </div>
           </div>
         </div>

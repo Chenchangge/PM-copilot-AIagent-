@@ -28,7 +28,10 @@ from app.schemas.evaluation import (
     DimensionReport,
     EvaluationReport,
     EvidenceItem,
+    PointResult,
+    QuestionReview,
     RecommendedKnowledge,
+    TurnReviewReport,
 )
 from app.services.interview_service import resolve_interview_adapter
 
@@ -62,6 +65,11 @@ def _code_str(code) -> str:
     return code.value if hasattr(code, "value") else str(code)
 
 
+def _norm_point(text: str) -> str:
+    """评分点文本归一化：去空白/常见标点，用于 LLM 输出与题库原文对齐。"""
+    return "".join(str(text).split()).strip("；;。.、，,").lower()
+
+
 class EvaluationService:
     def __init__(self, db: Session, llm_adapter=None, knowledge_index: dict[str, dict] | None = None) -> None:
         self.db = db
@@ -92,6 +100,7 @@ class EvaluationService:
 
         overall = calculate_overall_score(output.dimensions)
         recommendations = recommend_knowledge(output.dimensions, turns, self._knowledge_index)
+        turn_reviews = self._build_turn_reviews(turns, output.question_reviews)
 
         evaluation = existing if existing is not None else self._new_evaluation(session, user_id)
         evaluation.status = EVAL_STATUS_COMPLETED
@@ -101,6 +110,7 @@ class EvaluationService:
         evaluation.overall_weaknesses = output.overall_weaknesses
         evaluation.summary = output.summary
         evaluation.recommended_knowledge = recommendations
+        evaluation.turn_reviews = [r.model_dump() for r in turn_reviews]
         evaluation.model = getattr(adapter, "model", None)
         evaluation.provider = getattr(adapter, "provider", None)
         evaluation.error_code = None
@@ -208,19 +218,84 @@ class EvaluationService:
         self.db.add(evaluation)
         self.db.commit()
 
+    # ---- 逐题复盘 ----
+    def _build_turn_reviews(self, turns, reviews: list[QuestionReview]) -> list[TurnReviewReport]:
+        """把 turn 记录与 LLM 逐题复盘合成报告数据。
+
+        评分点以题库/面试记录里的 evaluation_points 为准（逆序不新造），LLM 只提供
+        met/partial/missed 状态与 comment；缺失的评分点标 unknown。
+        """
+        by_turn = {r.turn_id: r for r in reviews}
+        out: list[TurnReviewReport] = []
+        for turn in turns:
+            if turn.answer_content is None:
+                continue
+            review = by_turn.get(turn.id)
+            llm_points = list(review.point_results) if review is not None else []
+            llm_by_norm = {_norm_point(p.point): p for p in llm_points}
+            turn_points = list(turn.evaluation_points or [])
+            point_results: list[PointResult] = []
+            for idx, point in enumerate(turn_points):
+                matched = llm_by_norm.get(_norm_point(point))
+                if matched is None and review is not None and len(llm_points) == len(turn_points):
+                    matched = llm_points[idx]
+                if matched is None:
+                    point_results.append(PointResult(point=point, status="unknown", comment=""))
+                else:
+                    point_results.append(
+                        PointResult(point=point, status=matched.status, comment=matched.comment)
+                    )
+            out.append(
+                TurnReviewReport(
+                    turn_id=turn.id,
+                    round_number=turn.round_number,
+                    question_type=turn.question_type,
+                    follow_up_type=turn.follow_up_type,
+                    question=turn.question_content,
+                    answer=turn.answer_content or "",
+                    answer_length=turn.answer_length,
+                    score=int(review.score + 0.5) if review is not None and review.score is not None else None,
+                    point_results=point_results,
+                    reference_answer=turn.reference_answer or "",
+                    knowledge_ids=list(turn.knowledge_ids or []),
+                    comment=review.comment if review is not None else "",
+                )
+            )
+        return out
+
+    def _fallback_turn_reviews(self, session: InterviewSession) -> list[TurnReviewReport]:
+        """旧评价没有 turn_reviews 时，用 turn 记录补出逐题复盘（无分数/未判定）。"""
+        return self._build_turn_reviews(self._load_turns(session.id), [])
+
     # ---- 序列化 ----
     def _build_report(self, evaluation: InterviewEvaluation, session: InterviewSession) -> EvaluationReport:
+        raw_dims = evaluation.dimensions or []
+        has_any_evidence = any(d.get("evidence") for d in raw_dims)
         dims: list[DimensionReport] = []
-        for d in evaluation.dimensions or []:
+        for d in raw_dims:
             name = d["dimension"]
+            evidence = [EvidenceItem(**e) for e in d.get("evidence", [])]
+            raw_score = d.get("score")
+            score = int(raw_score + 0.5) if isinstance(raw_score, (int, float)) and not isinstance(raw_score, bool) else None
+            # 有证据的维度正常显示；完全没有证据的维度显示「本场未考察」。
+            # 如果整份报告所有维度都没证据（旧数据/旧模型），保留原分数以兼容历史报告。
+            if not evidence and has_any_evidence:
+                score = None
             dims.append(DimensionReport(
                 dimension=name,
                 weight=EVALUATION_WEIGHTS[name],
-                score=int(d["score"] + 0.5),
+                score=score,
                 strengths=d.get("strengths", []),
                 weaknesses=d.get("weaknesses", []),
-                evidence=[EvidenceItem(**e) for e in d.get("evidence", [])],
+                evidence=evidence,
             ))
+
+        stored_reviews = evaluation.turn_reviews or []
+        if stored_reviews:
+            turn_reviews = [TurnReviewReport(**r) for r in stored_reviews]
+        else:
+            turn_reviews = self._fallback_turn_reviews(session)
+
         return EvaluationReport(
             evaluation_id=evaluation.id,
             session_id=evaluation.session_id,
@@ -231,6 +306,7 @@ class EvaluationService:
             difficulty=session.difficulty,
             interview_type=session.interview_type,
             dimensions=dims,
+            turn_reviews=turn_reviews,
             overall_strengths=evaluation.overall_strengths or [],
             overall_weaknesses=evaluation.overall_weaknesses or [],
             recommended_knowledge=[RecommendedKnowledge(**r) for r in (evaluation.recommended_knowledge or [])],

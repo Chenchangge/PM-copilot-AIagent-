@@ -19,19 +19,40 @@ class EvidenceItem(BaseModel):
 
 
 class DimensionEvaluation(BaseModel):
-    """单个维度的评分结果（LLM 输出）。"""
+    """单个维度的评分结果（LLM 输出）。
+
+    score=None 表示本场没有该维度的有效回答/证据（未考察），不得用 50 之类中位分填充。
+    """
 
     dimension: str
-    score: float
+    score: float | None
     evidence: list[EvidenceItem] = Field(default_factory=list)
     strengths: list[str] = Field(default_factory=list)
     weaknesses: list[str] = Field(default_factory=list)
+
+
+class PointResult(BaseModel):
+    """评分点达成情况：met=✓ / partial=△ / missed=✗ / unknown=未判定。"""
+
+    point: str
+    status: str = "unknown"
+    comment: str = ""
+
+
+class QuestionReview(BaseModel):
+    """LLM 对单条 turn 的逐题复盘。"""
+
+    turn_id: int
+    score: float | None = None
+    point_results: list[PointResult] = Field(default_factory=list)
+    comment: str = ""
 
 
 class EvaluationOutput(BaseModel):
     """LLM 评价结构化输出的完整模型（不含总分，总分由后端计算）。"""
 
     dimensions: list[DimensionEvaluation]
+    question_reviews: list[QuestionReview] = Field(default_factory=list)
     overall_strengths: list[str] = Field(default_factory=list)
     overall_weaknesses: list[str] = Field(default_factory=list)
     summary: str = ""
@@ -47,14 +68,31 @@ class RecommendedKnowledge(BaseModel):
 
 
 class DimensionReport(BaseModel):
-    """报告中的单个维度（带权重 + 整型分数）。"""
+    """报告中的单个维度（带权重 + 整型分数；score=None 表示本场未考察）。"""
 
     dimension: str
     weight: float
-    score: int
+    score: int | None
     strengths: list[str] = Field(default_factory=list)
     weaknesses: list[str] = Field(default_factory=list)
     evidence: list[EvidenceItem] = Field(default_factory=list)
+
+
+class TurnReviewReport(BaseModel):
+    """逐题复盘：题号 + 题干 + 我的回答 + 该题得分 + 评分点 + 参考答案。"""
+
+    turn_id: int
+    round_number: int
+    question_type: str  # main | follow_up
+    follow_up_type: str | None = None
+    question: str
+    answer: str = ""
+    answer_length: int | None = None
+    score: int | None = None
+    point_results: list[PointResult] = Field(default_factory=list)
+    reference_answer: str = ""
+    knowledge_ids: list[str] = Field(default_factory=list)
+    comment: str = ""
 
 
 class EvaluationReport(BaseModel):
@@ -69,6 +107,7 @@ class EvaluationReport(BaseModel):
     difficulty: str
     interview_type: str
     dimensions: list[DimensionReport]
+    turn_reviews: list[TurnReviewReport] = Field(default_factory=list)
     overall_strengths: list[str] = Field(default_factory=list)
     overall_weaknesses: list[str] = Field(default_factory=list)
     recommended_knowledge: list[RecommendedKnowledge] = Field(default_factory=list)
